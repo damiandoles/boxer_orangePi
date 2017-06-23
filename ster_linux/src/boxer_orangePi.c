@@ -12,10 +12,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "uart.h"
+#include "database.h"
 
 int main(void)
 {
 	Uart_Init();
+	DataBase_Init();
 
 	while (true)
 	{
