@@ -10,13 +10,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "uart.h"
 
 int main(void)
 {
 	Uart_Init();
 
-	while(1)
+	while (true)
 	{
 		Uart_RxHandler();
 	}
