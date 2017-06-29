@@ -2,7 +2,7 @@
  * uart.c
  *
  *  Created on: 26 May 2017
- *      Author: dolewdam
+ *      Author: Damian Dolewski
  */
 
 #include "uart.h"

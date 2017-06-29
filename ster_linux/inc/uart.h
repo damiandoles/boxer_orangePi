@@ -2,7 +2,7 @@
  * uart.h
  *
  *  Created on: 26 May 2017
- *      Author: dolewdam
+ *      Author: Damian Dolewski
  */
 
 #ifndef INC_UART_H_
