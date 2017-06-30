@@ -55,9 +55,9 @@ void DataBase_Init(void)
 		snprintf(sqlStatement,
 				MAX_STATEMENT_LEN,
 				"CREATE TABLE IF NOT EXISTS PH_MEAS(" \
-				"PH_WATER		FLOAT," \
-				"PH_SOIL		FLOAT," \
-				"TIMELOCAL     TEXT NOT NULL);");
+				"PH_WATER	FLOAT," \
+				"PH_SOIL	FLOAT," \
+				"TIMELOCAL  TEXT NOT NULL);");
 
 		/* Execute SQL statement */
 		if (sqlite3_exec(database, sqlStatement, callback, 0, &zErrMsg) != SQLITE_OK)
@@ -161,9 +161,9 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName)
 {
 	for (int i = 0; i < argc; i++)
 	{
-		printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+		fprintf(stdout,"%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
 	}
 
-	printf("\n");
+	fprintf(stdout,"\n");
 	return 0;
 }

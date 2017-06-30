@@ -27,6 +27,6 @@ typedef struct PHMeasurements
 {
 	char * ph_water;
 	char * ph_soil;
-}ph_meas_t;
+} ph_meas_t;
 
 #endif /* INC_TYPES_H_ */
