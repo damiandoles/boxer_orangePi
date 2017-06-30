@@ -8,16 +8,25 @@
 #ifndef INC_TYPES_H_
 #define INC_TYPES_H_
 
-typedef struct Measurements
+/*
+ * all measurements data are string data because
+ * uart frame is string type and its directly put
+ * to the sql statement (snprintf function)
+*/
+typedef struct BasicMeasurements
 {
-	int humidity;
-	int lux;
-	float temp_up;
-	float temp_middle;
-	float temp_down;
-	float ph_water;
-	float ph_soil;
+	char * humidity;
+	char * lux;
+	char * temp_up;
+	char * temp_middle;
+	char * temp_down;
 	char * soil_moist;
-} measurement_t;
+} basic_meas_t;
+
+typedef struct PHMeasurements
+{
+	char * ph_water;
+	char * ph_soil;
+}ph_meas_t;
 
 #endif /* INC_TYPES_H_ */

@@ -6,6 +6,8 @@
  */
 
 #include "uart.h"
+#include "types.h"
+#include "database.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -116,31 +118,65 @@ void Uart_RxHandler(void)
 						printf("STA ");
 						if (strcmp(ReceivedString[1], "PRIMARYMEAS") == 0)
 						{
-							printf("PRIMARYMEAS %s %s %s %s %s %s ", ReceivedString[2], ReceivedString[3], ReceivedString[4],
-									ReceivedString[5], ReceivedString[6], ReceivedString[7]);
+							//STA PRIMARYMEAS hum lux temp_up temp_middle temp_down soil_moisture END
+							printf("PRIMARYMEAS %s %s %s %s %s %s ",
+									ReceivedString[2],
+									ReceivedString[3],
+									ReceivedString[4],
+									ReceivedString[5],
+									ReceivedString[6],
+									ReceivedString[7]);
+
 							if (strcmp(ReceivedString[8], "END") == 0)
 							{
 								printf("END\r\n");
+
+								basic_meas_t recvMeasData;
+								recvMeasData.humidity 		= ReceivedString[2];
+								recvMeasData.lux 			= ReceivedString[3];
+								recvMeasData.temp_up 		= ReceivedString[4];
+								recvMeasData.temp_middle 	= ReceivedString[5];
+								recvMeasData.temp_down 		= ReceivedString[6];
+								recvMeasData.soil_moist 	= ReceivedString[7];
+
+								DataBase_InsertBasicMeas(&recvMeasData);
+
 								rxBuffIndex = 0;
 								memset(rxBuffer, 0, RX_BUFF_SIZE);
 							}
 						}
 						else if (strcmp(ReceivedString[1], "PHW") == 0)
 						{
+							//STA PHW waterPh END
 							printf("PHW %s ", ReceivedString[2]);
+
 							if (strcmp(ReceivedString[3], "END") == 0)
 							{
 								printf("END\r\n");
+
+								ph_meas_t recvPhMeas;
+								recvPhMeas.ph_water = ReceivedString[2];
+								recvPhMeas.ph_soil = "";
+								DataBase_InsertPhMeas(&recvPhMeas);
+
 								rxBuffIndex = 0;
 								memset(rxBuffer, 0, RX_BUFF_SIZE);
 							}
 						}
 						else if (strcmp(ReceivedString[1], "PHS") == 0)
 						{
+							//STA PHS soilPh END
 							printf("PHS %s ", ReceivedString[2]);
+
 							if (strcmp(ReceivedString[3], "END") == 0)
 							{
 								printf("END\r\n");
+
+								ph_meas_t recvPhMeas;
+								recvPhMeas.ph_soil = ReceivedString[2];
+								recvPhMeas.ph_water = "";
+								DataBase_InsertPhMeas(&recvPhMeas);
+
 								rxBuffIndex = 0;
 								memset(rxBuffer, 0, RX_BUFF_SIZE);
 							}

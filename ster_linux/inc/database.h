@@ -14,6 +14,7 @@
 #include "types.h"
 
 void DataBase_Init(void);
-void DataBase_Insert(measurement_t * meas);
+void DataBase_InsertBasicMeas(basic_meas_t * meas);
+void DataBase_InsertPhMeas(ph_meas_t * meas);
 
 #endif /* INC_DATABASE_H_ */
