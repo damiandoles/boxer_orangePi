@@ -15,7 +15,9 @@
 #include <fcntl.h>			//Used for UART
 #include <termios.h>		//Used for UART
 
-#define RX_BUFF_SIZE				128
+#define RX_BUFF_SIZE				256
+#define MAX_SPLITED_COUNT			16
+#define MAX_SPLITED_LEN				16
 
 static char rxBuffer[RX_BUFF_SIZE] 	= {0};
 static unsigned int rxBuffIndex 	= 0;
@@ -96,7 +98,7 @@ void Uart_RxHandler(void)
 				char * endStrAddr    = strstr(rxBuffer, "END");
 				if (endStrAddr != NULL)
 				{
-					char ReceivedString [16][16] = {{0},{0}};
+					char ReceivedString [MAX_SPLITED_COUNT][MAX_SPLITED_LEN] = {{0},{0}};
 					char * splitStr = 0;
 					int i = 0;
 					splitStr = strtok (rxBuffer, " ");
@@ -104,7 +106,7 @@ void Uart_RxHandler(void)
 
 					while (splitStr != NULL)
 					{
-						if (i < RX_BUFF_SIZE)
+						if (i < MAX_SPLITED_COUNT - 1)
 						{
 							i++;
 						}
@@ -114,7 +116,14 @@ void Uart_RxHandler(void)
 						}
 
 						splitStr = strtok (NULL, " ");
-						strcpy(ReceivedString[i], splitStr);
+						if (splitStr != 0x0)
+						{
+							strcpy(ReceivedString[i], splitStr);
+						}
+						else
+						{
+							break;
+						}
 					}
 
 					if (strcmp(ReceivedString[0], "STA") == 0)
@@ -135,13 +144,14 @@ void Uart_RxHandler(void)
 							{
 								printf("END\r\n");
 
-								basic_meas_t recvMeasData;
-								recvMeasData.humidity 		= ReceivedString[2];
-								recvMeasData.lux 			= ReceivedString[3];
-								recvMeasData.temp_up 		= ReceivedString[4];
-								recvMeasData.temp_middle 	= ReceivedString[5];
-								recvMeasData.temp_down 		= ReceivedString[6];
-								recvMeasData.soil_moist 	= ReceivedString[7];
+								basic_meas_t * recvMeasData = malloc(sizeof(basic_meas_t));
+								//structptr->word = malloc(mystringlength+1);
+								strcpy(recvMeasData->humidity, 		ReceivedString[2]);
+								strcpy(recvMeasData->lux, 			ReceivedString[3]);
+								strcpy(recvMeasData->temp_up, 		ReceivedString[4]);
+								strcpy(recvMeasData->temp_middle,	ReceivedString[5]);
+								strcpy(recvMeasData->temp_down, 		ReceivedString[6]);
+								strcpy(recvMeasData->soil_moist, 	ReceivedString[7]);
 
 								DataBase_InsertBasicMeas(&recvMeasData);
 
@@ -159,7 +169,7 @@ void Uart_RxHandler(void)
 								printf("END\r\n");
 
 								ph_meas_t recvPhMeas;
-								recvPhMeas.ph_water = ReceivedString[2];
+								strcpy(recvPhMeas.ph_water, ReceivedString[2]);
 								recvPhMeas.ph_soil = "";
 								DataBase_InsertPhMeas(&recvPhMeas);
 
@@ -177,7 +187,7 @@ void Uart_RxHandler(void)
 								printf("END\r\n");
 
 								ph_meas_t recvPhMeas;
-								recvPhMeas.ph_soil = ReceivedString[2];
+								strcpy(recvPhMeas.ph_soil, ReceivedString[2]);
 								recvPhMeas.ph_water = "";
 								DataBase_InsertPhMeas(&recvPhMeas);
 
