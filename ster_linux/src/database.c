@@ -133,13 +133,34 @@ void DataBase_InsertPhMeas(ph_meas_t * meas)
 	{
 		fprintf(stdout, "DataBase_InsertPhMeas[Success]: Opened database successfully\n\r");
 
-		/* Create SQL statement */
-		snprintf(sqlStatement,
-				MAX_STATEMENT_LEN,
-				"INSERT INTO PH_MEAS (PH_WATER, PH_SOIL, TIMELOCAL) \
-				VALUES (%s,%s,datetime('now', 'localtime'));",
-				meas->ph_water,
-				meas->ph_soil);
+		if (meas->ph_soil[0] != '\0' && meas->ph_water[0] == '\0')
+		{
+			/* Create SQL statement */
+			snprintf(sqlStatement,
+					MAX_STATEMENT_LEN,
+					"INSERT INTO PH_MEAS (PH_WATER, PH_SOIL, TIMELOCAL) \
+					 VALUES (NULL,%s,datetime('now', 'localtime'));",
+					meas->ph_soil);
+		}
+		else if (meas->ph_soil[0] == '\0' && meas->ph_water[0] != '\0')
+		{
+			/* Create SQL statement */
+			snprintf(sqlStatement,
+					MAX_STATEMENT_LEN,
+					"INSERT INTO PH_MEAS (PH_WATER, PH_SOIL, TIMELOCAL) \
+					 VALUES (%s,NULL,datetime('now', 'localtime'));",
+					meas->ph_water);
+		}
+		else
+		{
+			/* Create SQL statement */
+			snprintf(sqlStatement,
+					MAX_STATEMENT_LEN,
+					"INSERT INTO PH_MEAS (PH_WATER, PH_SOIL, TIMELOCAL) \
+					 VALUES (%s,%s,datetime('now', 'localtime'));",
+					meas->ph_water,
+					meas->ph_soil);
+		}
 
 		/* Execute SQL statement */
 		if (sqlite3_exec(database, sqlStatement, callback, 0, &zErrMsg) != SQLITE_OK)

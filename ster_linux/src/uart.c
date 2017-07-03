@@ -15,9 +15,9 @@
 #include <fcntl.h>			//Used for UART
 #include <termios.h>		//Used for UART
 
-#define RX_BUFF_SIZE				256
+#define RX_BUFF_SIZE				64
 #define MAX_SPLITED_COUNT			16
-#define MAX_SPLITED_LEN				16
+#define MAX_SPLITED_LEN				32
 
 static char rxBuffer[RX_BUFF_SIZE] 	= {0};
 static unsigned int rxBuffIndex 	= 0;
@@ -39,7 +39,7 @@ void Uart_Init(void)
 	//											immediately with a failure status if the output can't be written immediately.
 	//
 	//	O_NOCTTY - When set and path identifies a terminal device, open() shall not cause the terminal device to become the controlling terminal for the process.
-	uart_stream = open("/dev/ttyACM0", O_RDWR | O_NOCTTY);		//Open in non blocking read/write mode
+	uart_stream = open("/dev/ttyUSB0", O_RDWR | O_NOCTTY);		//Open in non blocking read/write mode
 	if (uart_stream == -1)
 	{
 		//ERROR - CAN'T OPEN SERIAL PORT
@@ -60,7 +60,7 @@ void Uart_Init(void)
 		//	PARODD - Odd parity (else even)
 		struct termios uart;
 		tcgetattr(uart_stream, &uart);
-		uart.c_cflag = B115200 | CS8 | CLOCAL | CREAD;
+		uart.c_cflag = B57600 | CS8 | CLOCAL | CREAD;
 		uart.c_iflag = IGNPAR;
 		uart.c_oflag = 0;
 		uart.c_lflag = 0;
@@ -144,16 +144,16 @@ void Uart_RxHandler(void)
 							{
 								printf("END\r\n");
 
-								basic_meas_t * recvMeasData = malloc(sizeof(basic_meas_t));
-								//structptr->word = malloc(mystringlength+1);
+								basic_meas_t * recvMeasData = (basic_meas_t *)calloc(sizeof(recvMeasData), sizeof(basic_meas_t));
+
 								strcpy(recvMeasData->humidity, 		ReceivedString[2]);
 								strcpy(recvMeasData->lux, 			ReceivedString[3]);
 								strcpy(recvMeasData->temp_up, 		ReceivedString[4]);
 								strcpy(recvMeasData->temp_middle,	ReceivedString[5]);
-								strcpy(recvMeasData->temp_down, 		ReceivedString[6]);
+								strcpy(recvMeasData->temp_down, 	ReceivedString[6]);
 								strcpy(recvMeasData->soil_moist, 	ReceivedString[7]);
 
-								DataBase_InsertBasicMeas(&recvMeasData);
+								DataBase_InsertBasicMeas(recvMeasData);
 
 								rxBuffIndex = 0;
 								memset(rxBuffer, 0, RX_BUFF_SIZE);
@@ -168,10 +168,10 @@ void Uart_RxHandler(void)
 							{
 								printf("END\r\n");
 
-								ph_meas_t recvPhMeas;
-								strcpy(recvPhMeas.ph_water, ReceivedString[2]);
-								recvPhMeas.ph_soil = "";
-								DataBase_InsertPhMeas(&recvPhMeas);
+								ph_meas_t * recvPhMeas = (ph_meas_t *)calloc(sizeof(recvPhMeas), sizeof(ph_meas_t));
+								strcpy(recvPhMeas->ph_water, ReceivedString[2]);
+
+								DataBase_InsertPhMeas(recvPhMeas);
 
 								rxBuffIndex = 0;
 								memset(rxBuffer, 0, RX_BUFF_SIZE);
@@ -186,10 +186,10 @@ void Uart_RxHandler(void)
 							{
 								printf("END\r\n");
 
-								ph_meas_t recvPhMeas;
-								strcpy(recvPhMeas.ph_soil, ReceivedString[2]);
-								recvPhMeas.ph_water = "";
-								DataBase_InsertPhMeas(&recvPhMeas);
+								ph_meas_t * recvPhMeas = (ph_meas_t *)calloc(sizeof(recvPhMeas), sizeof(ph_meas_t));
+								strcpy(recvPhMeas->ph_soil,  ReceivedString[2]);
+
+								DataBase_InsertPhMeas(recvPhMeas);
 
 								rxBuffIndex = 0;
 								memset(rxBuffer, 0, RX_BUFF_SIZE);

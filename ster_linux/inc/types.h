@@ -15,18 +15,18 @@
 */
 typedef struct BasicMeasurements
 {
-	char * humidity;
-	char * lux;
-	char * temp_up;
-	char * temp_middle;
-	char * temp_down;
-	char * soil_moist;
+	char humidity[8];
+	char lux[8];
+	char temp_up[8];
+	char temp_middle[8];
+	char temp_down[8];
+	char soil_moist[8];
 } basic_meas_t;
 
 typedef struct PHMeasurements
 {
-	char * ph_water;
-	char * ph_soil;
+	char ph_water[8];
+	char ph_soil[8];
 } ph_meas_t;
 
 #endif /* INC_TYPES_H_ */
