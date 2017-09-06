@@ -93,12 +93,8 @@ typedef struct _HTTPResMessage
 
 typedef void (*HTTPREQ_CALLBACK)(HTTPReqMessage *, HTTPResMessage *);
 
-void HTTP_ServerInit(HTTPServer *, uint16_t);
-void HTTPServerRun(HTTPServer *, HTTPREQ_CALLBACK);
-#define HTTPServerRunLoop(srv, callback) { \
-	while(1) { \
-		HTTPServerRun(srv, callback); \
-	}}
-void HTTPServerClose(HTTPServer *);
+void Http_ServerInit(HTTPServer *, uint16_t);
+void Http_ServerRun(HTTPServer *, HTTPREQ_CALLBACK);
+void Http_ServerClose(HTTPServer *);
 
 #endif

@@ -38,7 +38,7 @@ HTTPReq http_req[MAX_HTTP_CLIENT];
 uint8_t req_buf[MAX_HTTP_CLIENT][MAX_HEADER_SIZE + MAX_BODY_SIZE];
 uint8_t res_buf[MAX_HTTP_CLIENT][MAX_HEADER_SIZE + MAX_BODY_SIZE];
 
-void HTTP_ServerInit(HTTPServer *srv, uint16_t port)
+void Http_ServerInit(HTTPServer *srv, uint16_t port)
 {
 	struct sockaddr_in srv_addr;
 	unsigned int i;
@@ -80,7 +80,7 @@ void HTTP_ServerInit(HTTPServer *srv, uint16_t port)
 	}
 }
 
-void HTTP_ServerAccept(HTTPServer *srv)
+void Http_ServerAccept(HTTPServer *srv)
 {
 	struct sockaddr_in cli_addr;
 	socklen_t sockaddr_len = sizeof(cli_addr);
@@ -113,7 +113,7 @@ void HTTP_ServerAccept(HTTPServer *srv)
 	}
 }
 
-int _CheckLine(char *buf)
+int Http_CheckLine(char *buf)
 {
 	int i = 0;
 	if(buf[i] == '\n')
@@ -126,7 +126,7 @@ int _CheckLine(char *buf)
 	return i;
 }
 
-int _CheckFieldSep(char *buf)
+int Http_CheckFieldSep(char *buf)
 {
 	int i = 0;
 	if ((buf[i - 1] == ':') && (buf[i] == ' '))
@@ -136,7 +136,7 @@ int _CheckFieldSep(char *buf)
 	return i;
 }
 
-HTTPMethod _HaveMethod(char *method)
+HTTPMethod Http_HaveMethod(char *method)
 {
 	HTTPMethod m;
 	if(memcmp(method, "GET", 3) == 0)
@@ -152,7 +152,7 @@ HTTPMethod _HaveMethod(char *method)
 	return m;
 }
 
-void WriteSock(HTTPReq *hr)
+void Http_WriteSock(HTTPReq *hr)
 {
 	ssize_t n;
 
@@ -187,7 +187,7 @@ void WriteSock(HTTPReq *hr)
 	}
 }
 
-int _ParseHeader(HTTPReq *hr)
+int Http_ParseHeader(HTTPReq *hr)
 {
 	SOCKET clisock = hr->clisock;
 	HTTPReqMessage *req = &(hr->req);
@@ -211,7 +211,7 @@ int _ParseHeader(HTTPReq *hr)
 				break;
 			}
 		}
-		req->Header.Method = _HaveMethod(p);
+		req->Header.Method = Http_HaveMethod(p);
 		/* Parse URI. */
 		if (n > 0)
 			i += 1;
@@ -235,7 +235,7 @@ int _ParseHeader(HTTPReq *hr)
 		for (i+=8; (n>0) && (i<MAX_HEADER_SIZE); i++)
 		{
 			n = recv(clisock, p + i, 1, 0);
-			if ((l = _CheckLine(p + i)))
+			if ((l = Http_CheckLine(p + i)))
 			{
 				if (l == 2)
 					p[i - 1] = '\0';
@@ -252,14 +252,14 @@ int _ParseHeader(HTTPReq *hr)
 		{
 			n = recv(clisock, p + i, 1, 0);
 			/* Check field key name end. */
-			if ((l = _CheckFieldSep(p + i)))
+			if ((l = Http_CheckFieldSep(p + i)))
 			{
 				p[i - 1] = '\0';
 				req->Header.Fields[req->Header.Amount].value = p + i + 1;
 			}
 
 			/* Check header end. */
-			if ((l = _CheckLine(p + i)))
+			if ((l = Http_CheckLine(p + i)))
 			{
 				if (end == 0)
 				{
@@ -295,7 +295,7 @@ int _ParseHeader(HTTPReq *hr)
 	return i;
 }
 
-int _GetBody(HTTPReq *hr)
+int Http_GetBody(HTTPReq *hr)
 {
 	SOCKET clisock = hr->clisock;
 	HTTPReqMessage *req = &(hr->req);
@@ -332,14 +332,14 @@ int _GetBody(HTTPReq *hr)
 	return (n < 0) ? -1 : i;
 }
 
-void _HTTPServerRequest(HTTPReq *hr, HTTPREQ_CALLBACK callback)
+void Http_ServerRequest(HTTPReq *hr, HTTPREQ_CALLBACK callback)
 {
 	int n;
 	hr->work_state = READING_SOCKET;
-	n = _ParseHeader(hr);
+	n = Http_ParseHeader(hr);
 	if (n > 0)
 	{
-		n = _GetBody(hr);
+		n = Http_GetBody(hr);
 		if (n >= 0)
 		{
 			callback(&(hr->req), &(hr->res));
@@ -357,7 +357,7 @@ void _HTTPServerRequest(HTTPReq *hr, HTTPREQ_CALLBACK callback)
 	}
 }
 
-void HTTPServerRun(HTTPServer *srv, HTTPREQ_CALLBACK callback)
+void Http_ServerRun(HTTPServer *srv, HTTPREQ_CALLBACK callback)
 {
 	fd_set readable, writeable;
 	struct timeval timeout = {0, 0};
@@ -372,7 +372,7 @@ void HTTPServerRun(HTTPServer *srv, HTTPREQ_CALLBACK callback)
 	if (FD_ISSET(srv->sock, &readable))
 	{
 		/* Accept when server socket has been connected. */
-		HTTP_ServerAccept(srv);
+		Http_ServerAccept(srv);
 	}
 	/* Check sockets in HTTP client requests pool are readable. */
 	for (i=0; i<MAX_HTTP_CLIENT; i++)
@@ -383,14 +383,14 @@ void HTTPServerRun(HTTPServer *srv, HTTPREQ_CALLBACK callback)
 			if (FD_ISSET(http_req[i].clisock, &readable))
 			{
 				/* Deal the request from the client socket. */
-				_HTTPServerRequest(&(http_req[i]), callback);
+				Http_ServerRequest(&(http_req[i]), callback);
 				FD_SET(http_req[i].clisock, &(srv->_write_sock_pool));
 				FD_CLR(http_req[i].clisock, &(srv->_read_sock_pool));
 			}
 			if (IsReqWriting(http_req[i].work_state)
 				&& FD_ISSET(http_req[i].clisock, &writeable))
 			{
-				WriteSock(http_req + i);
+				Http_WriteSock(http_req + i);
 			}
 			if (IsReqWriteEnd(http_req[i].work_state))
 			{
@@ -410,7 +410,7 @@ void HTTPServerRun(HTTPServer *srv, HTTPREQ_CALLBACK callback)
 	}
 }
 
-void HTTPServerClose(HTTPServer *srv)
+void Http_ServerClose(HTTPServer *srv)
 {
 	shutdown(srv->sock, SHUT_RDWR);
 	close((srv)->sock);

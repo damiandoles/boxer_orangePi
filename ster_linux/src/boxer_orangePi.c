@@ -35,7 +35,7 @@ void TerminateApp(int status)
 	pthread_join(uartRxThreadHandler, NULL);
 	pthread_join(uartTxThreadHandler, NULL);
 	pthread_join(httpThreadHandler, NULL);
-	HTTPServerClose(&srv);
+	Http_ServerClose(&srv);
 	exit(EXIT_SUCCESS);
 }
 
@@ -46,9 +46,8 @@ int main(void)
 	DataBase_Init();
 	DataBase_TestInsert();
 
-	HTTP_ServerInit(&srv, 8080);
-
-
+	Http_RegisterHandlers();
+	Http_ServerInit(&srv, 8080);
 
 	errno = pthread_create(&uartRxThreadHandler, NULL, uartRxThread, NULL);
 	errno = pthread_create(&uartTxThreadHandler, NULL, uartTxThread, NULL);
@@ -88,9 +87,9 @@ void * httpThread(void * param)
 {
 	while (true)
 	{
-		HTTPServerRunLoop(&srv, Dispatch);
+		Http_ServerRun(&srv, Dispatch);
 	}
 
-	HTTPServerClose(&srv);
+	Http_ServerClose(&srv);
 	pthread_exit(NULL);
 }
