@@ -13,8 +13,6 @@
 #include <sqlite3.h>
 #include "types.h"
 
-#define TEST_DB_INSERT_STATEMENT
-
 void DataBase_Init(void);
 void DataBase_InsertBasicMeas(basic_meas_t * meas);
 void DataBase_InsertPhMeas(ph_meas_t * meas);

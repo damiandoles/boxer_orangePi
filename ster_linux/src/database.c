@@ -15,7 +15,7 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName);
 
 void DataBase_TestInsert(void)
 {
-#ifdef TEST_DB_INSERT_STATEMENT
+#ifdef DEBUG_DB_INSERT_STATEMENT
 	basic_meas_t testBasicMeas;
 	strcpy(testBasicMeas.humidity, 		"48");
 	strcpy(testBasicMeas.lux, 			"16678");
@@ -41,16 +41,18 @@ void DataBase_Init(void)
 	char * zErrMsg = 0;
 	char * sqlStatement = (char*)calloc(MAX_STATEMENT_LEN, sizeof(char));
 
-	/* Open SQL database */
 	if (sqlite3_open("sqldb/boxer.db", &database) != SQLITE_OK)
 	{
+#ifdef DEBUG_SQL_DATABASE
 		fprintf(stderr, "DataBase_Init[Error]: Can't open database: %s\n\r", sqlite3_errmsg(database));
+#endif
+		exit(EXIT_FAILURE);
 	}
 	else
 	{
+#ifdef DEBUG_SQL_DATABASE
 		fprintf(stdout, "DataBase_Init[Success]: Opened database successfully\n\r");
-
-		/* Create SQL statement */
+#endif
 		snprintf(sqlStatement,
 				MAX_STATEMENT_LEN,
 				"CREATE TABLE IF NOT EXISTS BASIC_MEAS("  	\
@@ -62,18 +64,20 @@ void DataBase_Init(void)
 				"SOIL_MOIST     TEXT NOT NULL," 			\
 				"TIMELOCAL      TEXT NOT NULL);");
 
-		/* Execute SQL statement */
 		if (sqlite3_exec(database, sqlStatement, callback, 0, &zErrMsg) != SQLITE_OK)
 		{
+#ifdef DEBUG_SQL_DATABASE
 			fprintf(stderr, "DataBase_Init[Error]: SQL exec %s\n\r", zErrMsg);
+#endif
 			sqlite3_free(zErrMsg);
+			exit(EXIT_FAILURE);
 		}
+#ifdef DEBUG_SQL_DATABASE
 		else
 		{
 			fprintf(stdout, "DataBase_Init[Success]: Table BASIC_MEAS created successfully\n\r");
 		}
-
-		/* Create SQL statement */
+#endif
 		snprintf(sqlStatement,
 				MAX_STATEMENT_LEN,
 				"CREATE TABLE IF NOT EXISTS PH_MEAS(" \
@@ -81,16 +85,20 @@ void DataBase_Init(void)
 				"PH_SOIL	FLOAT," \
 				"TIMELOCAL  TEXT NOT NULL);");
 
-		/* Execute SQL statement */
 		if (sqlite3_exec(database, sqlStatement, callback, 0, &zErrMsg) != SQLITE_OK)
 		{
+#ifdef DEBUG_SQL_DATABASE
 			fprintf(stderr, "DataBase_Init[Error]: SQL exec %s\n\r", zErrMsg);
+#endif
 			sqlite3_free(zErrMsg);
+			exit(EXIT_FAILURE);
 		}
+#ifdef DEBUG_SQL_DATABASE
 		else
 		{
 			fprintf(stdout, "DataBase_Init[Success]: Table PH_MEAS created successfully\n\r");
 		}
+#endif
 
 		sqlite3_close(database);
 		free(sqlStatement);
@@ -103,16 +111,18 @@ void DataBase_InsertBasicMeas(basic_meas_t * meas)
 	char * zErrMsg = 0;
 	char * sqlStatement = (char*)calloc(MAX_STATEMENT_LEN, sizeof(char));
 
-	/* Open SQL database */
 	if (sqlite3_open("sqldb/boxer.db", &database) != SQLITE_OK)
 	{
+#ifdef DEBUG_SQL_DATABASE
 		fprintf(stderr, "DataBase_InsertBasicMeas[Error]: Can't open database: %s\n\r", sqlite3_errmsg(database));
+#endif
+		exit(EXIT_FAILURE);
 	}
 	else
 	{
+#ifdef DEBUG_SQL_DATABASE
 		fprintf(stdout, "DataBase_InsertBasicMeas[Success]: Opened database successfully\n\r");
-
-		/* Create SQL statement */
+#endif
 		snprintf(sqlStatement,
 				MAX_STATEMENT_LEN,
 				"INSERT INTO BASIC_MEAS (HUMIDITY, LUX, TEMP_UP, TEMP_MIDDLE, TEMP_DOWN, SOIL_MOIST, TIMELOCAL) \
@@ -124,16 +134,20 @@ void DataBase_InsertBasicMeas(basic_meas_t * meas)
 				meas->temp_down,
 				meas->soil_moist);
 
-		/* Execute SQL statement */
 		if (sqlite3_exec(database, sqlStatement, callback, 0, &zErrMsg) != SQLITE_OK)
 		{
+#ifdef DEBUG_SQL_DATABASE
 			fprintf(stderr, "DataBase_InsertBasicMeas[Error]: SQL exec %s\n\r", zErrMsg);
+#endif
 			sqlite3_free(zErrMsg);
+			exit(EXIT_FAILURE);
 		}
+#ifdef DEBUG_SQL_DATABASE
 		else
 		{
 			fprintf(stdout, "DataBase_InsertBasicMeas[Success]: Data inserted successfully to BASIC_MEAS\n\r");
 		}
+#endif
 
 		sqlite3_close(database);
 		free(sqlStatement);
@@ -146,18 +160,20 @@ void DataBase_InsertPhMeas(ph_meas_t * meas)
 	char * zErrMsg = 0;
 	char * sqlStatement = (char*)calloc(MAX_STATEMENT_LEN, sizeof(char));
 
-	/* Open SQL database */
 	if (sqlite3_open("sqldb/boxer.db", &database) != SQLITE_OK)
 	{
+#ifdef DEBUG_SQL_DATABASE
 		fprintf(stderr, "DataBase_InsertPhMeas[Error]: Can't open database: %s\n\r", sqlite3_errmsg(database));
+#endif
+		exit(EXIT_FAILURE);
 	}
 	else
 	{
+#ifdef DEBUG_SQL_DATABASE
 		fprintf(stdout, "DataBase_InsertPhMeas[Success]: Opened database successfully\n\r");
-
+#endif
 		if (meas->ph_soil[0] != '\0' && meas->ph_water[0] == '\0')
 		{
-			/* Create SQL statement */
 			snprintf(sqlStatement,
 					MAX_STATEMENT_LEN,
 					"INSERT INTO PH_MEAS (PH_WATER, PH_SOIL, TIMELOCAL) \
@@ -166,7 +182,6 @@ void DataBase_InsertPhMeas(ph_meas_t * meas)
 		}
 		else if (meas->ph_soil[0] == '\0' && meas->ph_water[0] != '\0')
 		{
-			/* Create SQL statement */
 			snprintf(sqlStatement,
 					MAX_STATEMENT_LEN,
 					"INSERT INTO PH_MEAS (PH_WATER, PH_SOIL, TIMELOCAL) \
@@ -175,7 +190,6 @@ void DataBase_InsertPhMeas(ph_meas_t * meas)
 		}
 		else
 		{
-			/* Create SQL statement */
 			snprintf(sqlStatement,
 					MAX_STATEMENT_LEN,
 					"INSERT INTO PH_MEAS (PH_WATER, PH_SOIL, TIMELOCAL) \
@@ -184,17 +198,20 @@ void DataBase_InsertPhMeas(ph_meas_t * meas)
 					meas->ph_soil);
 		}
 
-		/* Execute SQL statement */
 		if (sqlite3_exec(database, sqlStatement, callback, 0, &zErrMsg) != SQLITE_OK)
 		{
+#ifdef DEBUG_SQL_DATABASE
 			fprintf(stderr, "DataBase_InsertPhMeas[Error]: SQL exec %s\n\r", zErrMsg);
+#endif
 			sqlite3_free(zErrMsg);
+			exit(EXIT_FAILURE);
 		}
+#ifdef DEBUG_SQL_DATABASE
 		else
 		{
 			fprintf(stdout, "DataBase_InsertPhMeas[Success]: Data inserted successfully to PH_MEAS\n\r");
 		}
-
+#endif
 		sqlite3_close(database);
 		free(sqlStatement);
 	}

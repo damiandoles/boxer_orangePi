@@ -42,7 +42,7 @@ const char* GetFileExtension(const char *path)
 
 /* Add an URI and the corresponding server application function into the route
    table. */
-int AddRoute(HTTPMethod method, char *uri, SAF saf) {
+int AddRouteHandler(HTTPMethod method, char *uri, SAF saf) {
 	if(routes_used < MAX_HTTP_ROUTES) {
 		routes[routes_used].method = method;
 		routes[routes_used].uri = uri;
