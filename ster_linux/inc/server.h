@@ -30,14 +30,16 @@ https://github.com/starnight/MicroHttpServer
 
 typedef int SOCKET;
 
-typedef struct _HTTPServer {
+typedef struct _HTTPServer
+{
 	SOCKET sock;
 	SOCKET _max_sock;
 	fd_set _read_sock_pool;
 	fd_set _write_sock_pool;
 } HTTPServer;
 
-typedef struct _HTTPHeaderField {
+typedef struct _HTTPHeaderField
+{
 	char *key;
 	char *value;
 } HTTPHeaderField;
@@ -46,7 +48,8 @@ typedef struct _HTTPHeaderField {
 #define MAX_HEADER_FIELDS  20
 #endif
 
-typedef enum {
+typedef enum
+{
 	HTTP_GET,
 	HTTP_POST,
 	HTTP_PUT,
@@ -54,7 +57,8 @@ typedef enum {
 	HTTP_NUM_METHOD
 } HTTPMethod;
 
-typedef struct _HTTPReqHeader {
+typedef struct _HTTPReqHeader
+{
 	HTTPMethod Method;
 	char *URI;
 	char *Version;
@@ -62,14 +66,16 @@ typedef struct _HTTPReqHeader {
 	unsigned int Amount;
 } HTTPReqHeader;
 
-typedef struct _HTTPReqMessage {
+typedef struct _HTTPReqMessage
+{
 	HTTPReqHeader Header;
 	uint8_t *Body;
 	uint8_t *_buf;
 	uint64_t _index;
 } HTTPReqMessage;
 
-typedef struct _HTTPResHeader {
+typedef struct _HTTPResHeader
+{
 	char *Version;
 	char *StatusCode;
 	char *Description;
@@ -77,7 +83,8 @@ typedef struct _HTTPResHeader {
 	unsigned int Amount;
 } HTTPResHeader;
 
-typedef struct _HTTPResMessage {
+typedef struct _HTTPResMessage
+{
 	HTTPResHeader Header;
 	uint8_t *Body;
 	uint8_t *_buf;
@@ -86,19 +93,12 @@ typedef struct _HTTPResMessage {
 
 typedef void (*HTTPREQ_CALLBACK)(HTTPReqMessage *, HTTPResMessage *);
 
-void HTTPServerInit(HTTPServer *, uint16_t);
+void HTTP_ServerInit(HTTPServer *, uint16_t);
 void HTTPServerRun(HTTPServer *, HTTPREQ_CALLBACK);
 #define HTTPServerRunLoop(srv, callback) { \
 	while(1) { \
 		HTTPServerRun(srv, callback); \
 	}}
 void HTTPServerClose(HTTPServer *);
-
-#ifdef DEBUG_MSG
-#include <stdio.h>
-#define DebugMsg(...) (printf(__VA_ARGS__))
-#else
-#define DebugMsg(...)
-#endif
 
 #endif

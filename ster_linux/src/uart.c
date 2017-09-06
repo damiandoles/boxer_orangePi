@@ -55,7 +55,7 @@ void Uart_Init(void)
 	uart_stream = open("/dev/ttyACM0", O_RDWR | O_NOCTTY);		//Open in non blocking read/write mode
 	if (uart_stream == -1)
 	{
-#ifdef DEBUG_UART
+#ifdef DEBUG_UART_RX
 		printf("Uart_Init[Error]: Unable to open UART. Ensure it is not in use by another application\n\r");
 #endif
 		exit(EXIT_FAILURE);
@@ -72,7 +72,7 @@ void Uart_Init(void)
 		tcflush(uart_stream, TCIFLUSH);
 		tcsetattr(uart_stream, TCSANOW, &uart);
 
-#ifdef DEBUG_UART
+#ifdef DEBUG_UART_RX
 		printf("Uart_Init[Success]: Opened port COM successfully\n\r");
 #endif
 	}
@@ -140,13 +140,13 @@ void Uart_RxHandler(void)
 
 						if (strcmp(ReceivedString[0], "STA") == 0)
 						{
-							#ifdef DEBUG_UART
+							#ifdef DEBUG_UART_RX
 							printf("Received frame: STA ");
 							#endif
 							if (strcmp(ReceivedString[1], "PRIMARYMEAS") == 0)
 							{
 								//STA PRIMARYMEAS hum lux temp_up temp_middle temp_down soil_moisture END
-								#ifdef DEBUG_UART
+								#ifdef DEBUG_UART_RX
 								printf("PRIMARYMEAS %s %s %s %s %s %s ",
 										ReceivedString[2],
 										ReceivedString[3],
@@ -158,7 +158,7 @@ void Uart_RxHandler(void)
 
 								if (strcmp(ReceivedString[8], "END") == 0)
 								{
-									#ifdef DEBUG_UART
+									#ifdef DEBUG_UART_RX
 									printf("END\r\n");
 									#endif
 									basic_meas_t * recvMeasData = (basic_meas_t *)calloc(sizeof(recvMeasData), sizeof(basic_meas_t));
@@ -179,12 +179,12 @@ void Uart_RxHandler(void)
 							else if (strcmp(ReceivedString[1], "PHW") == 0)
 							{
 								//STA PHW waterPh END
-								#ifdef DEBUG_UART
+								#ifdef DEBUG_UART_RX
 								printf("PHW %s ", ReceivedString[2]);
 								#endif
 								if (strcmp(ReceivedString[3], "END") == 0)
 								{
-									#ifdef DEBUG_UART
+									#ifdef DEBUG_UART_RX
 									printf("END\r\n");
 									#endif
 									ph_meas_t * recvPhMeas = (ph_meas_t *)calloc(sizeof(recvPhMeas), sizeof(ph_meas_t));
@@ -199,12 +199,12 @@ void Uart_RxHandler(void)
 							else if (strcmp(ReceivedString[1], "PHS") == 0)
 							{
 								//STA PHS soilPh END
-								#ifdef DEBUG_UART
+								#ifdef DEBUG_UART_RX
 								printf("PHS %s ", ReceivedString[2]);
 								#endif
 								if (strcmp(ReceivedString[3], "END") == 0)
 								{
-								#ifdef DEBUG_UART
+								#ifdef DEBUG_UART_RX
 									printf("END\r\n");
 								#endif
 									ph_meas_t * recvPhMeas = (ph_meas_t *)calloc(sizeof(recvPhMeas), sizeof(ph_meas_t));

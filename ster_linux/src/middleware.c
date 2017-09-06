@@ -15,28 +15,28 @@ int routes_used = 0;
 
 const char* GetContentType(const char *path)
 {
-	if(strstr(path,".HTML") || strstr(path,".html")) return "text/html";
-	if(strstr(path,".JPEG") || strstr(path,".jpeg")) return "image/jpeg";
-	if(strstr(path,".PNG" ) || strstr(path,".png" )) return "image/png";
-	if(strstr(path,".TXT" ) || strstr(path,".txt" )) return "text";
-	if(strstr(path,".JPG" ) || strstr(path,".jpg" )) return "image/jpg";
-	if(strstr(path,".CSS" ) || strstr(path,".css" )) return "text/css";
-	if(strstr(path,".DB"  ) || strstr(path,".db"  )) return "text/plain";
-	if(strstr(path,".JS"  ) || strstr(path,".js"  )) return "application/javascript";
-	if(strstr(path,".XML" ) || strstr(path,".xml" )) return "application/xml";
+	if (strstr(path,".HTML") || strstr(path,".html")) return "text/html";
+	if (strstr(path,".JPEG") || strstr(path,".jpeg")) return "image/jpeg";
+	if (strstr(path,".PNG" ) || strstr(path,".png" )) return "image/png";
+	if (strstr(path,".TXT" ) || strstr(path,".txt" )) return "text";
+	if (strstr(path,".JPG" ) || strstr(path,".jpg" )) return "image/jpg";
+	if (strstr(path,".CSS" ) || strstr(path,".css" )) return "text/css";
+	if (strstr(path,".DB"  ) || strstr(path,".db"  )) return "text/plain";
+	if (strstr(path,".JS"  ) || strstr(path,".js"  )) return "application/javascript";
+	if (strstr(path,".XML" ) || strstr(path,".xml" )) return "application/xml";
 	return "text/html";
 }
 
 const char* GetFileExtension(const char *path)
 {
-	if(strstr(path,".HTML") || strstr(path,".html")) return "html";
-	if(strstr(path,".JPEG") || strstr(path,".jpeg")) return "jpeg";
-	if(strstr(path,".PNG" ) || strstr(path,".png" )) return "png";
-	if(strstr(path,".TXT" ) || strstr(path,".txt" )) return "txt";
-	if(strstr(path,".JPG" ) || strstr(path,".jpg" )) return "jpg";
-	if(strstr(path,".CSS" ) || strstr(path,".css" )) return "css";
-	if(strstr(path,".JS"  ) || strstr(path,".js"  )) return "js";
-	if(strstr(path,".XML" ) || strstr(path,".xml" )) return "xml";
+	if (strstr(path,".HTML") || strstr(path,".html")) return "html";
+	if (strstr(path,".JPEG") || strstr(path,".jpeg")) return "jpeg";
+	if (strstr(path,".PNG" ) || strstr(path,".png" )) return "png";
+	if (strstr(path,".TXT" ) || strstr(path,".txt" )) return "txt";
+	if (strstr(path,".JPG" ) || strstr(path,".jpg" )) return "jpg";
+	if (strstr(path,".CSS" ) || strstr(path,".css" )) return "css";
+	if (strstr(path,".JS"  ) || strstr(path,".js"  )) return "js";
+	if (strstr(path,".XML" ) || strstr(path,".xml" )) return "xml";
 	return "text/html";
 }
 
@@ -67,8 +67,8 @@ uint8_t _ReadStaticFiles(HTTPReqMessage *req, HTTPResMessage *res) {
 	FILE *fp;
 	long int size;
 	char path[256] = {STATIC_FILE_FOLDER};
-	char * contentType = GetContentType(uri);
-	char * fileExtension = GetFileExtension(uri);
+	const char * contentType = GetContentType(uri);
+//	const char * fileExtension = GetFileExtension(uri);
 
 //	if (strcmp(fileExtension, "js")==0)
 //	{
@@ -79,7 +79,6 @@ uint8_t _ReadStaticFiles(HTTPReqMessage *req, HTTPResMessage *res) {
 //		strstr(path, "/css");
 //	}
 
-	strstr(path, uri);
 //	char header[] = "HTTP/1.1 200 OK\r\nConnection: close\r\n"
 //	                "Content-Type: text/html; charset=UTF-8\r\n\r\n";
 
