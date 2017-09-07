@@ -18,7 +18,7 @@
 void DataBase_Init(void);
 void DataBase_InsertBasicMeas(basic_meas_t * meas);
 void DataBase_InsertPhMeas(ph_meas_t * meas);
-void DataBase_SelectData(const char * tableName, char ** result);
+void DataBase_SelectMeasData(basic_meas_t * basicMeas, ph_meas_t * phMeas);
 void DataBase_TestInsert(void);
 
 #endif /* INC_DATABASE_H_ */

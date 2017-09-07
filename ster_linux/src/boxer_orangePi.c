@@ -13,12 +13,12 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <errno.h>
+#include <http_middleware.h>
 #include <stdbool.h>
 #include <signal.h>
 #include <unistd.h>
 
 #include "server.h"
-#include "middleware.h"
 #include "uart.h"
 #include "database.h"
 #include "http_request.h"
@@ -41,7 +41,7 @@ void TerminateApp(int status)
 int main(void)
 {
 	signal(SIGINT, TerminateApp);
-//	Uart_Init();
+	Uart_Init();
 	DataBase_Init();
 	DataBase_TestInsert();
 

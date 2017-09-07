@@ -10,11 +10,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #define MAX_STATEMENT_LEN	256
 
-static int SelectCallback(void *NotUsed, int argc, char **argv, char **azColName);
-static char selectResult [8][32] = {{0},{0}}; // [column_name][column_value]
+static int SelectBasicMeas_Callback(void *NotUsed, int argc, char **argv, char **azColName);
+static int SelectPhMeas_Callback(void *NotUsed, int argc, char **argv, char **colName);
+
+static char sBasicMeas [6][32] 	= {{0},{0}};
+static char sPhMeas [2][8] 		= {{0},{0}};
 
 void DataBase_TestInsert(void)
 {
@@ -68,7 +72,7 @@ void DataBase_Init(void)
 				"SOIL_MOIST     TEXT NOT NULL," 			\
 				"TIMELOCAL      TEXT NOT NULL);");
 
-		if (sqlite3_exec(database, sqlStatement, SelectCallback, 0, &zErrMsg) != SQLITE_OK)
+		if (sqlite3_exec(database, sqlStatement, SelectBasicMeas_Callback, 0, &zErrMsg) != SQLITE_OK)
 		{
 #ifdef DEBUG_SQL_DATABASE
 			fprintf(stderr, "DataBase_Init[Error]: SQL exec %s\n\r", zErrMsg);
@@ -89,7 +93,7 @@ void DataBase_Init(void)
 				"PH_SOIL	FLOAT," \
 				"TIMELOCAL  TEXT NOT NULL);");
 
-		if (sqlite3_exec(database, sqlStatement, SelectCallback, 0, &zErrMsg) != SQLITE_OK)
+		if (sqlite3_exec(database, sqlStatement, SelectBasicMeas_Callback, 0, &zErrMsg) != SQLITE_OK)
 		{
 #ifdef DEBUG_SQL_DATABASE
 			fprintf(stderr, "DataBase_Init[Error]: SQL exec %s\n\r", zErrMsg);
@@ -139,7 +143,7 @@ void DataBase_InsertBasicMeas(basic_meas_t * meas)
 				meas->temp_down,
 				meas->soil_moist);
 
-		if (sqlite3_exec(database, sqlStatement, SelectCallback, 0, &zErrMsg) != SQLITE_OK)
+		if (sqlite3_exec(database, sqlStatement, SelectBasicMeas_Callback, 0, &zErrMsg) != SQLITE_OK)
 		{
 #ifdef DEBUG_SQL_DATABASE
 			fprintf(stderr, "DataBase_InsertBasicMeas[Error]: SQL exec %s\n\r", zErrMsg);
@@ -204,7 +208,7 @@ void DataBase_InsertPhMeas(ph_meas_t * meas)
 					meas->ph_soil);
 		}
 
-		if (sqlite3_exec(database, sqlStatement, SelectCallback, 0, &zErrMsg) != SQLITE_OK)
+		if (sqlite3_exec(database, sqlStatement, SelectBasicMeas_Callback, 0, &zErrMsg) != SQLITE_OK)
 		{
 #ifdef DEBUG_SQL_DATABASE
 			fprintf(stderr, "DataBase_InsertPhMeas[Error]: SQL exec %s\n\r", zErrMsg);
@@ -223,7 +227,7 @@ void DataBase_InsertPhMeas(ph_meas_t * meas)
 	}
 }
 
-void DataBase_SelectData(const char * tableName, char ** result)
+void DataBase_SelectMeasData(basic_meas_t * basicMeas, ph_meas_t * phMeas)
 {
 	sqlite3 * database;
 	char * zErrMsg = 0;
@@ -243,18 +247,10 @@ void DataBase_SelectData(const char * tableName, char ** result)
 		fprintf(stdout, "DataBase_SelectData[Success]: Opened database successfully\n\r");
 #endif
 
-		if (strcmp((const char*)"BASIC_MEAS", tableName) == 0)
-		{
-			const char * basicMeasStatement = "SELECT * FROM BASIC_MEAS ORDER BY TIMELOCAL DESC Limit 1";
-			strcpy(sqlStatement, basicMeasStatement);
-		}
-		else if (strcmp((const char*)"PH_MEAS", tableName) == 0)
-		{
-			const char * pHMeasStatement = "SELECT * FROM PH_MEAS ORDER BY TIMELOCAL DESC Limit 1";
-			strcpy(sqlStatement, pHMeasStatement);
-		}
+		const char * basicMeasStatement = "SELECT * FROM BASIC_MEAS ORDER BY TIMELOCAL DESC Limit 1";
+		strcpy(sqlStatement, basicMeasStatement);
 
-		if (sqlite3_exec(database, sqlStatement, SelectCallback, 0, &zErrMsg) != SQLITE_OK)
+		if (sqlite3_exec(database, sqlStatement, SelectBasicMeas_Callback, 0, &zErrMsg) != SQLITE_OK)
 		{
 #ifdef DEBUG_SQL_DATABASE
 			fprintf(stderr, "DataBase_SelectData[Error]: SQL exec %s\n\r", zErrMsg);
@@ -269,23 +265,60 @@ void DataBase_SelectData(const char * tableName, char ** result)
 		}
 #endif
 
-		result = (char **)calloc(8*32, 8*32*sizeof(char));
-		for (int i = 0; i < 8; ++i)
+// HUMIDITY = 48 LUX = 16678 TEMP_UP = 29.5 TEMP_MIDDLE = 28.4 TEMP_DOWN = 27.7 SOIL_MOIST = DRY TIMELOCAL = 2017-09-07 21:52:25
+
+		strcpy(basicMeas->humidity, 	sBasicMeas[0]);
+		strcpy(basicMeas->lux, 			sBasicMeas[1]);
+		strcpy(basicMeas->temp_up, 		sBasicMeas[2]);
+		strcpy(basicMeas->temp_middle, 	sBasicMeas[3]);
+		strcpy(basicMeas->temp_down, 	sBasicMeas[4]);
+		strcpy(basicMeas->soil_moist, 	sBasicMeas[5]);
+
+		const char * pHMeasStatement = "SELECT * FROM PH_MEAS ORDER BY TIMELOCAL DESC Limit 1";
+		strcpy(sqlStatement, pHMeasStatement);
+
+		if (sqlite3_exec(database, sqlStatement, SelectPhMeas_Callback, 0, &zErrMsg) != SQLITE_OK)
 		{
-			memcpy(&(result[i][0]), &(selectResult[i][0]), 8 * sizeof(char));
+#ifdef DEBUG_SQL_DATABASE
+			fprintf(stderr, "DataBase_SelectData[Error]: SQL exec %s\n\r", zErrMsg);
+#endif
+			sqlite3_free(zErrMsg);
+			exit(EXIT_FAILURE);
 		}
+#ifdef DEBUG_SQL_DATABASE
+		else
+		{
+			fprintf(stdout, "DataBase_SelectData[Success]: Data selected successfully from BASIC_MEAS\n\r");
+		}
+#endif
+// PH_WATER = NULL	PH_SOIL = 4.89	TIMELOCAL = 2017-09-07 22:09:34
+
+		strcpy(phMeas->ph_water,  sPhMeas[0]);
+		strcpy(phMeas->ph_soil, sPhMeas[1]);
 
 		sqlite3_close(database);
 		free(sqlStatement);
 	}
 }
 
-static int SelectCallback(void *NotUsed, int argc, char **argv, char **colName)
+static int SelectBasicMeas_Callback(void *NotUsed, int argc, char **argv, char **colName)
 {
     for (int i = 0; i < argc; i++)
     {
         printf("%s = %s\t", colName[i], argv[i] ?  : "NULL");
-        strcpy(selectResult[i], argv[i] ?  : "NULL");
+        strcpy(sBasicMeas[i], argv[i] ?  : "NULL");
+    }
+
+    printf("\r\n");
+    return 0;
+}
+
+static int SelectPhMeas_Callback(void *NotUsed, int argc, char **argv, char **colName)
+{
+    for (int i = 0; i < argc; i++)
+    {
+        printf("%s = %s\t", colName[i], argv[i] ?  : "NULL");
+        strcpy(sPhMeas[i], argv[i] ?  : "NULL");
     }
 
     printf("\r\n");
