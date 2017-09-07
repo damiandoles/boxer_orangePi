@@ -13,7 +13,8 @@
 
 #define MAX_STATEMENT_LEN	256
 
-static int callback(void *NotUsed, int argc, char **argv, char **azColName);
+static int SelectCallback(void *NotUsed, int argc, char **argv, char **azColName);
+static char selectResult [8][32] = {{0},{0}}; // [column_name][column_value]
 
 void DataBase_TestInsert(void)
 {
@@ -48,6 +49,7 @@ void DataBase_Init(void)
 #ifdef DEBUG_SQL_DATABASE
 		fprintf(stderr, "DataBase_Init[Error]: Can't open database: %s\n\r", sqlite3_errmsg(database));
 #endif
+		sqlite3_close(database);
 		exit(EXIT_FAILURE);
 	}
 	else
@@ -66,7 +68,7 @@ void DataBase_Init(void)
 				"SOIL_MOIST     TEXT NOT NULL," 			\
 				"TIMELOCAL      TEXT NOT NULL);");
 
-		if (sqlite3_exec(database, sqlStatement, callback, 0, &zErrMsg) != SQLITE_OK)
+		if (sqlite3_exec(database, sqlStatement, SelectCallback, 0, &zErrMsg) != SQLITE_OK)
 		{
 #ifdef DEBUG_SQL_DATABASE
 			fprintf(stderr, "DataBase_Init[Error]: SQL exec %s\n\r", zErrMsg);
@@ -87,7 +89,7 @@ void DataBase_Init(void)
 				"PH_SOIL	FLOAT," \
 				"TIMELOCAL  TEXT NOT NULL);");
 
-		if (sqlite3_exec(database, sqlStatement, callback, 0, &zErrMsg) != SQLITE_OK)
+		if (sqlite3_exec(database, sqlStatement, SelectCallback, 0, &zErrMsg) != SQLITE_OK)
 		{
 #ifdef DEBUG_SQL_DATABASE
 			fprintf(stderr, "DataBase_Init[Error]: SQL exec %s\n\r", zErrMsg);
@@ -118,6 +120,7 @@ void DataBase_InsertBasicMeas(basic_meas_t * meas)
 #ifdef DEBUG_SQL_DATABASE
 		fprintf(stderr, "DataBase_InsertBasicMeas[Error]: Can't open database: %s\n\r", sqlite3_errmsg(database));
 #endif
+		sqlite3_close(database);
 		exit(EXIT_FAILURE);
 	}
 	else
@@ -136,7 +139,7 @@ void DataBase_InsertBasicMeas(basic_meas_t * meas)
 				meas->temp_down,
 				meas->soil_moist);
 
-		if (sqlite3_exec(database, sqlStatement, callback, 0, &zErrMsg) != SQLITE_OK)
+		if (sqlite3_exec(database, sqlStatement, SelectCallback, 0, &zErrMsg) != SQLITE_OK)
 		{
 #ifdef DEBUG_SQL_DATABASE
 			fprintf(stderr, "DataBase_InsertBasicMeas[Error]: SQL exec %s\n\r", zErrMsg);
@@ -167,6 +170,7 @@ void DataBase_InsertPhMeas(ph_meas_t * meas)
 #ifdef DEBUG_SQL_DATABASE
 		fprintf(stderr, "DataBase_InsertPhMeas[Error]: Can't open database: %s\n\r", sqlite3_errmsg(database));
 #endif
+		sqlite3_close(database);
 		exit(EXIT_FAILURE);
 	}
 	else
@@ -200,7 +204,7 @@ void DataBase_InsertPhMeas(ph_meas_t * meas)
 					meas->ph_soil);
 		}
 
-		if (sqlite3_exec(database, sqlStatement, callback, 0, &zErrMsg) != SQLITE_OK)
+		if (sqlite3_exec(database, sqlStatement, SelectCallback, 0, &zErrMsg) != SQLITE_OK)
 		{
 #ifdef DEBUG_SQL_DATABASE
 			fprintf(stderr, "DataBase_InsertPhMeas[Error]: SQL exec %s\n\r", zErrMsg);
@@ -219,13 +223,71 @@ void DataBase_InsertPhMeas(ph_meas_t * meas)
 	}
 }
 
-static int callback(void *NotUsed, int argc, char **argv, char **azColName)
+void DataBase_SelectData(const char * tableName, char ** result)
 {
-	for (int i = 0; i < argc; i++)
-	{
-		fprintf(stdout,"%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
-	}
+	sqlite3 * database;
+	char * zErrMsg = 0;
+	char * sqlStatement = (char*)calloc(MAX_STATEMENT_LEN, sizeof(char));
 
-	fprintf(stdout,"\n");
-	return 0;
+	if (sqlite3_open("sqldb/boxer.db", &database) != SQLITE_OK)
+	{
+#ifdef DEBUG_SQL_DATABASE
+		fprintf(stderr, "DataBase_SelectData[Error]: Can't open database: %s\n\r", sqlite3_errmsg(database));
+#endif
+		sqlite3_close(database);
+		exit(EXIT_FAILURE);
+	}
+	else
+	{
+#ifdef DEBUG_SQL_DATABASE
+		fprintf(stdout, "DataBase_SelectData[Success]: Opened database successfully\n\r");
+#endif
+
+		if (strcmp((const char*)"BASIC_MEAS", tableName) == 0)
+		{
+			const char * basicMeasStatement = "SELECT * FROM BASIC_MEAS ORDER BY TIMELOCAL DESC Limit 1";
+			strcpy(sqlStatement, basicMeasStatement);
+		}
+		else if (strcmp((const char*)"PH_MEAS", tableName) == 0)
+		{
+			const char * pHMeasStatement = "SELECT * FROM PH_MEAS ORDER BY TIMELOCAL DESC Limit 1";
+			strcpy(sqlStatement, pHMeasStatement);
+		}
+
+		if (sqlite3_exec(database, sqlStatement, SelectCallback, 0, &zErrMsg) != SQLITE_OK)
+		{
+#ifdef DEBUG_SQL_DATABASE
+			fprintf(stderr, "DataBase_SelectData[Error]: SQL exec %s\n\r", zErrMsg);
+#endif
+			sqlite3_free(zErrMsg);
+			exit(EXIT_FAILURE);
+		}
+#ifdef DEBUG_SQL_DATABASE
+		else
+		{
+			fprintf(stdout, "DataBase_SelectData[Success]: Data selected successfully from BASIC_MEAS\n\r");
+		}
+#endif
+
+		result = (char **)calloc(8*32, 8*32*sizeof(char));
+		for (int i = 0; i < 8; ++i)
+		{
+			memcpy(&(result[i][0]), &(selectResult[i][0]), 8 * sizeof(char));
+		}
+
+		sqlite3_close(database);
+		free(sqlStatement);
+	}
+}
+
+static int SelectCallback(void *NotUsed, int argc, char **argv, char **colName)
+{
+    for (int i = 0; i < argc; i++)
+    {
+        printf("%s = %s\t", colName[i], argv[i] ?  : "NULL");
+        strcpy(selectResult[i], argv[i] ?  : "NULL");
+    }
+
+    printf("\r\n");
+    return 0;
 }

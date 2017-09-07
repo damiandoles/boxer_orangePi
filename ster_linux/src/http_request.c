@@ -64,6 +64,8 @@ static void GetLamp(HTTPReqMessage *req, HTTPResMessage *res)
 
 static void GetMeas(HTTPReqMessage *req, HTTPResMessage *res)
 {
+	char ** values = 0;
+	DataBase_SelectData("BASIC_MEAS", values);
 	printf("GetMeas POST request\r\n");
 	memcpy(res->_buf, PostResp, POST_RESP_LEN);
 	res->_index = POST_RESP_LEN;
@@ -101,6 +103,8 @@ static void SaveLamp(HTTPReqMessage *req, HTTPResMessage *res)
 		printf("SaveLamp POST request: %s\r\n", data);
 		memcpy(res->_buf, PostResp, POST_RESP_LEN);
 		res->_index = POST_RESP_LEN;
+
+		free(data);
 	}
 }
 
@@ -115,6 +119,8 @@ static void SaveTempFan(HTTPReqMessage *req, HTTPResMessage *res)
 		printf("SaveTempFan POST request: %s\r\n", data);
 		memcpy(res->_buf, PostResp, POST_RESP_LEN);
 		res->_index = POST_RESP_LEN;
+
+		free(data);
 	}
 }
 
@@ -129,6 +135,8 @@ static void SaveCalibPh(HTTPReqMessage *req, HTTPResMessage *res)
 		printf("SaveCalibPh POST request: %s\r\n", data);
 		memcpy(res->_buf, PostResp, POST_RESP_LEN);
 		res->_index = POST_RESP_LEN;
+
+		free(data);
 	}
 }
 
@@ -143,6 +151,8 @@ static void SaveIrr(HTTPReqMessage *req, HTTPResMessage *res)
 		printf("SaveIrr POST request: %s\r\n", data);
 		memcpy(res->_buf, PostResp, POST_RESP_LEN);
 		res->_index = POST_RESP_LEN;
+
+		free(data);
 	}
 }
 
@@ -157,6 +167,8 @@ static void SaveNetwork(HTTPReqMessage *req, HTTPResMessage *res)
 		printf("SaveNetwork POST request: %s\r\n", data);
 		memcpy(res->_buf, PostResp, POST_RESP_LEN);
 		res->_index = POST_RESP_LEN;
+
+		free(data);
 	}
 }
 
