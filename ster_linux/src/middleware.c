@@ -3,7 +3,6 @@
 #include <sys/stat.h>
 #include "middleware.h"
 
-/* Route */
 typedef struct _Route
 {
 	HTTPMethod method;
@@ -12,7 +11,7 @@ typedef struct _Route
 } Route;
 
 Route routes[MAX_HTTP_ROUTES] = {0};
-int routes_used = 0;
+uint8_t routes_used = 0;
 
 const char* GetContentType(const char *path)
 {
@@ -28,8 +27,7 @@ const char* GetContentType(const char *path)
 	return "text/html";
 }
 
-/* Add an URI and the corresponding server application function into the route
-   table. */
+//A dd an URI and the corresponding server application function into the route table.
 int AddRouteHandler(HTTPMethod method, char *uri, SAF saf)
 {
 	if (routes_used < MAX_HTTP_ROUTES)
@@ -43,6 +41,7 @@ int AddRouteHandler(HTTPMethod method, char *uri, SAF saf)
 	}
 	else
 	{
+		printf("To many routes!\r\n");
 		return 0;
 	}
 }
@@ -60,9 +59,6 @@ uint8_t _ReadStaticFiles(HTTPReqMessage *req, HTTPResMessage *res)
 	long int size;
 	char path[256] = {STATIC_FILE_FOLDER};
 	const char * contentType = GetContentType(uri);
-
-//	char header[] = "HTTP/1.1 200 OK\r\nConnection: close\r\n"
-//	                "Content-Type: text/html; charset=UTF-8\r\n\r\n";
 
 	char header[128] = {0};
 	strcpy(header, "HTTP/1.1 200 OK\r\nConnection: close\r\n Content-Type: ");

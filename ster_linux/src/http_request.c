@@ -5,14 +5,22 @@
  *      Author: doles
  */
 #include "http_request.h"
+#include "database.h"
 #include <stdio.h>
 #include <string.h>
+
+static void GetLamp(HTTPReqMessage *req, HTTPResMessage *res);
+static void GetMeas(HTTPReqMessage *req, HTTPResMessage *res);
+static void GetTempFan(HTTPReqMessage *req, HTTPResMessage *res);
+static void GetAdvanced(HTTPReqMessage *req, HTTPResMessage *res);
+static void GetIrr(HTTPReqMessage *req, HTTPResMessage *res);
 
 static void SaveLamp(HTTPReqMessage *req, HTTPResMessage *res);
 static void SaveTempFan(HTTPReqMessage *req, HTTPResMessage *res);
 static void SaveCalibPh(HTTPReqMessage *req, HTTPResMessage *res);
 static void SaveIrr(HTTPReqMessage *req, HTTPResMessage *res);
 static void SaveNetwork(HTTPReqMessage *req, HTTPResMessage *res);
+
 static void Reset(HTTPReqMessage *req, HTTPResMessage *res);
 static void FactoryDef(HTTPReqMessage *req, HTTPResMessage *res);
 
@@ -29,15 +37,57 @@ static const char HeadResp[] = "HTTP/1.1 200 OK\r\n" \
 #define POST_RESP_LEN strlen(PostResp)
 #define HEAD_RESP_LEN strlen(HeadResp)
 
-void HttpMidd_RegisterUserHandlers(void)
+void HttpReq_RegisterUserHandlers(void)
 {
-	AddRouteHandler(HTTP_POST, "/SaveLamp",   	SaveLamp);
+	AddRouteHandler(HTTP_POST, "/GetLamp",   	GetLamp);
+	AddRouteHandler(HTTP_POST, "/GetMeas",   	GetMeas);
+	AddRouteHandler(HTTP_POST, "/GetTempFan",   GetTempFan);
+	AddRouteHandler(HTTP_POST, "/GetAdvanced",  GetAdvanced);
+	AddRouteHandler(HTTP_POST, "/GetIrr",   	GetIrr);
+
+	AddRouteHandler(HTTP_POST, "/SaveLamp",  	SaveLamp);
 	AddRouteHandler(HTTP_POST, "/SaveTempFan",  SaveTempFan);
 	AddRouteHandler(HTTP_POST, "/SaveCalibPh",  SaveCalibPh);
 	AddRouteHandler(HTTP_POST, "/SaveIrr",   	SaveIrr);
 	AddRouteHandler(HTTP_POST, "/SaveNetwork",  SaveNetwork);
+
 	AddRouteHandler(HTTP_HEAD, "/Reset",   		Reset);
 	AddRouteHandler(HTTP_HEAD, "/FactoryDef",   FactoryDef);
+}
+
+static void GetLamp(HTTPReqMessage *req, HTTPResMessage *res)
+{
+	printf("GetLamp POST request\r\n");
+	memcpy(res->_buf, PostResp, POST_RESP_LEN);
+	res->_index = POST_RESP_LEN;
+}
+
+static void GetMeas(HTTPReqMessage *req, HTTPResMessage *res)
+{
+	printf("GetMeas POST request\r\n");
+	memcpy(res->_buf, PostResp, POST_RESP_LEN);
+	res->_index = POST_RESP_LEN;
+}
+
+static void GetTempFan(HTTPReqMessage *req, HTTPResMessage *res)
+{
+	printf("GetTempFan POST request\r\n");
+	memcpy(res->_buf, PostResp, POST_RESP_LEN);
+	res->_index = POST_RESP_LEN;
+}
+
+static void GetAdvanced(HTTPReqMessage *req, HTTPResMessage *res)
+{
+	printf("GetAdvanced POST request\r\n");
+	memcpy(res->_buf, PostResp, POST_RESP_LEN);
+	res->_index = POST_RESP_LEN;
+}
+
+static void GetIrr(HTTPReqMessage *req, HTTPResMessage *res)
+{
+	printf("GetIrr POST request\r\n");
+	memcpy(res->_buf, PostResp, POST_RESP_LEN);
+	res->_index = POST_RESP_LEN;
 }
 
 static void SaveLamp(HTTPReqMessage *req, HTTPResMessage *res)

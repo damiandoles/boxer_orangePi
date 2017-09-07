@@ -13,6 +13,6 @@
 
 HTTPServer srv;
 
-void HttpMidd_RegisterUserHandlers(void);
+void HttpReq_RegisterUserHandlers(void);
 
 #endif /* INC_HTTP_REQUEST_H_ */

@@ -5,7 +5,7 @@
 
 /* Route */
 #ifndef MAX_HTTP_ROUTES
-#define MAX_HTTP_ROUTES  10
+#define MAX_HTTP_ROUTES  20
 #endif
 
 //#define STATIC_FILE_FOLDER "/home/doles/Documents/Git_repos/boxer_orangepi_www/website/source"

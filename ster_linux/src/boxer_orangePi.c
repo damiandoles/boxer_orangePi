@@ -45,7 +45,7 @@ int main(void)
 	DataBase_Init();
 	DataBase_TestInsert();
 
-	HttpMidd_RegisterUserHandlers();
+	HttpReq_RegisterUserHandlers();
 	Http_ServerInit(&srv, HTTP_PORT);
 
 	errno = pthread_create(&uartRxThreadHandler, NULL, uartRxThread, NULL);
