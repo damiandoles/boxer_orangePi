@@ -7,7 +7,9 @@
 #ifndef MAX_HTTP_ROUTES
 #define MAX_HTTP_ROUTES  10
 #endif
-#define STATIC_FILE_FOLDER "/home/doles/Documents/Git_repos/boxer_orangepi_www/website/source"
+
+//#define STATIC_FILE_FOLDER "/home/doles/Documents/Git_repos/boxer_orangepi_www/website/source"
+#define STATIC_FILE_FOLDER "/home/dolewdam/Git_Repos/Prywatne/boxer_orangepi_www/website/source"
 
 /* Data type of server application function */
 typedef HTTPREQ_CALLBACK SAF;

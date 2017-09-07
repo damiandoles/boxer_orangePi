@@ -34,9 +34,9 @@ typedef struct _HTTPReq
 	uint8_t work_state;
 } HTTPReq;
 
-HTTPReq http_req[MAX_HTTP_CLIENT];
-uint8_t req_buf[MAX_HTTP_CLIENT][MAX_HEADER_SIZE + MAX_BODY_SIZE];
-uint8_t res_buf[MAX_HTTP_CLIENT][MAX_HEADER_SIZE + MAX_BODY_SIZE];
+HTTPReq http_req[MAX_HTTP_CLIENT] = {0};
+uint8_t req_buf[MAX_HTTP_CLIENT][MAX_HEADER_SIZE + MAX_BODY_SIZE] = {0};
+uint8_t res_buf[MAX_HTTP_CLIENT][MAX_HEADER_SIZE + MAX_BODY_SIZE] = {0};
 
 void Http_ServerInit(HTTPServer *srv, uint16_t port)
 {
@@ -46,7 +46,7 @@ void Http_ServerInit(HTTPServer *srv, uint16_t port)
 	/* Have a server socket. */
 	srv->sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (srv->sock <= 0)
-		exit(1);
+		exit(EXIT_FAILURE);
 	/* Set server address. */
 	memset(&srv_addr, 0, sizeof(srv_addr));
 	srv_addr.sin_family = AF_INET;
@@ -58,7 +58,7 @@ void Http_ServerInit(HTTPServer *srv, uint16_t port)
 	if (bind(srv->sock, (struct sockaddr*) &srv_addr, sizeof(srv_addr)) == -1)
 	{
 		printf("HTTPServerInit: bind failed - application exit\r\n");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	/* Set the server socket non-blocking. */
 	fcntl(srv->sock, F_SETFL, O_NONBLOCK);
@@ -71,7 +71,7 @@ void Http_ServerInit(HTTPServer *srv, uint16_t port)
 	/* The server socket's FD is max in the master socket queue for now. */
 	srv->_max_sock = srv->sock;
 	/* Prepare the HTTP client requests pool. */
-	for (i=0; i<MAX_HTTP_CLIENT; i++)
+	for (i = 0; i < MAX_HTTP_CLIENT; i++)
 	{
 		http_req[i].req._buf = req_buf[i];
 		http_req[i].res._buf = res_buf[i];
@@ -98,7 +98,7 @@ void Http_ServerAccept(HTTPServer *srv)
 		if (clisock > srv->_max_sock)
 			srv->_max_sock = clisock;
 		/* Add into HTTP client requests pool. */
-		for (i=0; i<MAX_HTTP_CLIENT; i++)
+		for (i = 0; i < MAX_HTTP_CLIENT; i++)
 		{
 			if (http_req[i].clisock == -1)
 			{
@@ -116,9 +116,9 @@ void Http_ServerAccept(HTTPServer *srv)
 int Http_CheckLine(char *buf)
 {
 	int i = 0;
-	if(buf[i] == '\n')
+	if (buf[i] == '\n')
 	{
-		if(buf[i - 1] == '\r')
+		if (buf[i - 1] == '\r')
 			i = 2;
 		else
 			i = 1;
@@ -139,14 +139,16 @@ int Http_CheckFieldSep(char *buf)
 HTTPMethod Http_HaveMethod(char *method)
 {
 	HTTPMethod m;
-	if(memcmp(method, "GET", 3) == 0)
+	if (memcmp(method, "GET", 3) == 0)
 		m = HTTP_GET;
-	else if(memcmp(method, "POST", 4) == 0)
+	else if (memcmp(method, "POST", 4) == 0)
 		m = HTTP_POST;
-	else if(memcmp(method, "PUT", 3) == 0)
+	else if (memcmp(method, "PUT", 3) == 0)
 		m = HTTP_PUT;
-	else if(memcmp(method, "DELETE", 6) == 0)
+	else if (memcmp(method, "DELETE", 6) == 0)
 		m = HTTP_DELETE;
+	else if (memcmp(method, "HEAD", 4) == 0)
+		m = HTTP_HEAD;
 	else
 		m = HTTP_GET;
 	return m;
@@ -169,12 +171,12 @@ void Http_WriteSock(HTTPReq *hr)
 		else
 			hr->work_state = WRITEEND_SOCKET;
 	}
-	else if(n == 0)
+	else if (n == 0)
 	{
 		/* Writing is finished. */
 		hr->work_state = WRITEEND_SOCKET;
 	}
-	else if((errno == EAGAIN) || (errno == EWOULDBLOCK))
+	else if ((errno == EAGAIN) || (errno == EWOULDBLOCK))
 	{
 		/* Send with non-blocking socket. */
 		hr->windex += hr->res._index - hr->windex;
@@ -202,7 +204,7 @@ int Http_ParseHeader(HTTPReq *hr)
 	if (n == 3)
 	{
 		/* Parse method. */
-		for (i = 3; n>0; i++)
+		for (i = 3; n > 0; i++)
 		{
 			n = recv(clisock, p + i, 1, 0);
 			if (p[i] == ' ')
@@ -216,10 +218,10 @@ int Http_ParseHeader(HTTPReq *hr)
 		if (n > 0)
 			i += 1;
 		req->Header.URI = p + i;
-		for(; n>0; i++)
+		for (; n > 0; i++)
 		{
 			n = recv(clisock, p + i, 1, 0);
-			if(p[i] == ' ')
+			if (p[i] == ' ')
 			{
 				p[i] = '\0';
 				break;
@@ -232,7 +234,7 @@ int Http_ParseHeader(HTTPReq *hr)
 		req->Header.Version = p + i;
 		/* HTTP/1.1 has 8 charaters. */
 		n = recv(clisock, p + i, 8, 0);
-		for (i+=8; (n>0) && (i<MAX_HEADER_SIZE); i++)
+		for (i += 8; (n > 0) && (i < MAX_HEADER_SIZE); i++)
 		{
 			n = recv(clisock, p + i, 1, 0);
 			if ((l = Http_CheckLine(p + i)))
@@ -248,7 +250,7 @@ int Http_ParseHeader(HTTPReq *hr)
 			i += 1;
 		req->Header.Fields[req->Header.Amount].key = p + i;
 		end = 0;
-		for (; (n>0) && (i<MAX_HEADER_SIZE) && (req->Header.Amount<MAX_HEADER_FIELDS); i++)
+		for (; (n > 0) && (i < MAX_HEADER_SIZE) && (req->Header.Amount < MAX_HEADER_FIELDS); i++)
 		{
 			n = recv(clisock, p + i, 1, 0);
 			/* Check field key name end. */
@@ -307,7 +309,7 @@ int Http_GetBody(HTTPReq *hr)
 	req->Body = req->_buf + req->_index;
 	if (req->Header.Method == HTTP_POST)
 	{
-		for (i=0; i<req->Header.Amount; i++)
+		for (i = 0; i < req->Header.Amount; i++)
 		{
 			if (memcmp(req->Header.Fields[i].key, "Content-Length", 15) == 0)
 			{
@@ -321,7 +323,7 @@ int Http_GetBody(HTTPReq *hr)
 		if (len > MAX_BODY_SIZE)
 			len = MAX_BODY_SIZE;
 
-		for(i=0; (n>0) && (i<len); i+=n)
+		for (i = 0; (n > 0) && (i < len); i += n)
 		{
 			n = recv(clisock, p + i, (len-i), MSG_PEEK);
 		}
@@ -375,7 +377,7 @@ void Http_ServerRun(HTTPServer *srv, HTTPREQ_CALLBACK callback)
 		Http_ServerAccept(srv);
 	}
 	/* Check sockets in HTTP client requests pool are readable. */
-	for (i=0; i<MAX_HTTP_CLIENT; i++)
+	for (i = 0; i < MAX_HTTP_CLIENT; i++)
 	{
 		if (http_req[i].clisock != -1)
 		{
@@ -415,86 +417,3 @@ void Http_ServerClose(HTTPServer *srv)
 	shutdown(srv->sock, SHUT_RDWR);
 	close((srv)->sock);
 }
-
-#ifdef MICRO_HTTP_SERVER_EXAMPLE
-/* This is exmaple. */
-void _HelloPage(HTTPReqMessage *req, HTTPResMessage *res) {
-	int n, i = 0, j;
-	char *p;
-	char header1[] = "HTTP/1.1 200 OK\r\nConnection: close\r\n";
-	char header2[] = "Content-Type: text/html; charset=UTF-8\r\n\r\n";
-	char body1[] = "<html><body>許功蓋 Hello <br>";
-	char body2[] = "</body></html>";
-
-	/* Build header. */
-	p = res->_buf;	
-	n = strlen(header1);
-	memcpy(p, header1, n);
-	p += n;
-	i += n;
-	
-	n = strlen(header2);
-	memcpy(p, header2, n);
-	p += n;
-	i += n;
-	
-	/* Build body. */
-	n = strlen(body1);
-	memcpy(p, body1, n);
-	p += n;
-	i += n;
-
-	/* Echo request header into body. */
-	n = strlen(req->_buf);
-	memcpy(p, req->_buf, n);
-	p += n;
-	i += n;
-
-	n = strlen("<br>");
-	memcpy(p, "<br>", n);
-	p += n;
-	i += n;
-
-	n = strlen(req->Header.URI);
-	memcpy(p, req->Header.URI, n);
-	p += n;
-	i += n;
-
-	n = strlen("<br>");
-	memcpy(p, "<br>", n);
-	p += n;
-	i += n;
-
-	n = strlen(req->Header.Version);
-	memcpy(p, req->Header.Version, n);
-	p += n;
-	i += n;
-
-	for(j=0; j<req->Header.Amount; j++) {
-		n = strlen("<br>");
-		memcpy(p, "<br>", n);
-		p += n;
-		i += n;
-
-		n = strlen(req->Header.Fields[j].key);
-		memcpy(p, req->Header.Fields[j].key, n);
-		p += n;
-		i += n;
-
-		p[0] = ':'; p[1] = ' ';
-		p += 2;
-		i += 2;
-
-		n = strlen(req->Header.Fields[j].value);
-		memcpy(p, req->Header.Fields[j].value, n);
-		p += n;
-		i += n;
-	}
-
-	n = strlen(body2);
-	memcpy(p, body2, n);
-	i += n;
-
-	res->_index = i;
-}
-#endif

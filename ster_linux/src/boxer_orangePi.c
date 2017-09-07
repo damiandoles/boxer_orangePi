@@ -27,7 +27,6 @@ void * uartRxThread(void * param);
 void * uartTxThread(void * param);
 void * httpThread(void * param);
 
-
 pthread_t uartRxThreadHandler, uartTxThreadHandler, httpThreadHandler;
 
 void TerminateApp(int status)
@@ -42,12 +41,12 @@ void TerminateApp(int status)
 int main(void)
 {
 	signal(SIGINT, TerminateApp);
-	Uart_Init();
+//	Uart_Init();
 	DataBase_Init();
 	DataBase_TestInsert();
 
-	Http_RegisterHandlers();
-	Http_ServerInit(&srv, 8080);
+	HttpMidd_RegisterUserHandlers();
+	Http_ServerInit(&srv, HTTP_PORT);
 
 	errno = pthread_create(&uartRxThreadHandler, NULL, uartRxThread, NULL);
 	errno = pthread_create(&uartTxThreadHandler, NULL, uartTxThread, NULL);

@@ -16,8 +16,8 @@ https://github.com/starnight/MicroHttpServer
 #define MAX_HEADER_SIZE  1024
 #define MAX_BODY_SIZE    100000000
 
-#ifndef MHS_PORT
-#define MHS_PORT         8001
+#ifndef HTTP_PORT
+#define HTTP_PORT         8080
 #endif
 
 #ifndef MAX_HTTP_CLIENT
@@ -25,7 +25,7 @@ https://github.com/starnight/MicroHttpServer
 #endif
 
 #ifndef HTTP_SERVER
-#define HTTP_SERVER      "Micro CHTTP Server"
+#define HTTP_SERVER      "BoxerHttpServer"
 #endif
 
 typedef int SOCKET;
@@ -54,6 +54,7 @@ typedef enum
 	HTTP_POST,
 	HTTP_PUT,
 	HTTP_DELETE,
+	HTTP_HEAD,
 	HTTP_NUM_METHOD
 } HTTPMethod;
 
