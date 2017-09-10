@@ -196,7 +196,7 @@ void Uart_RxHandler(void)
 									strcpy(recvPhMeas->ph_water, ReceivedString[2]);
 
 									pthread_mutex_lock(&uartDB_mutex);
-									DataBase_InsertBasicMeas(recvPhMeas);
+									DataBase_InsertPhMeas(recvPhMeas);
 									pthread_mutex_unlock(&uartDB_mutex);
 
 									rxBuffIndex = 0;
@@ -218,7 +218,7 @@ void Uart_RxHandler(void)
 									strcpy(recvPhMeas->ph_soil,  ReceivedString[2]);
 
 									pthread_mutex_lock(&uartDB_mutex);
-									DataBase_InsertBasicMeas(recvPhMeas);
+									DataBase_InsertPhMeas(recvPhMeas);
 									pthread_mutex_unlock(&uartDB_mutex);
 
 									rxBuffIndex = 0;
