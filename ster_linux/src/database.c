@@ -284,6 +284,7 @@ void DataBase_SelectMeasData(basic_meas_t * basicMeas, ph_meas_t * phMeas)
 		strcpy(basicMeas->temp_down, 	sBasicMeas[4]);
 		strcpy(basicMeas->soil_moist, 	sBasicMeas[5]);
 
+		memset(sqlStatement, 0, sizeof(MAX_STATEMENT_LEN));
 		const char * pHMeasStatement = "SELECT * FROM PH_MEAS ORDER BY TIMELOCAL DESC Limit 1";
 		strcpy(sqlStatement, pHMeasStatement);
 
@@ -327,6 +328,7 @@ static int SelectBasicMeas_Callback(void *NotUsed, int argc, char **argv, char *
 
 static int SelectPhMeas_Callback(void *NotUsed, int argc, char **argv, char **colName)
 {
+	memset(sPhMeas,0,16);
     for (int i = 0; i < argc; i++)
     {
         printf("%s = %s\t", colName[i], argv[i] ?  : "NULL");

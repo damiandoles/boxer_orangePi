@@ -77,12 +77,14 @@ static void GetMeas(HTTPReqMessage *req, HTTPResMessage *res)
 	snprintf(
 			respBody,
 			MAX_GETMEAS_RESP_LEN,
-			"%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n",
+			"%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n",
 			m_basic.humidity,
 			m_basic.lux,
 			m_basic.temp_up,
 			m_basic.temp_middle,
 			m_basic.temp_down,
+			m_ph.ph_water,
+			m_ph.ph_soil,
 			m_basic.soil_moist);
 
 	snprintf(Code200_GetMeas,
