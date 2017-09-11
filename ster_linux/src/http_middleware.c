@@ -10,8 +10,8 @@ typedef struct _Route
 	SAF saf;
 } Route;
 
-Route routes[MAX_HTTP_ROUTES] = {0};
-uint8_t routes_used = 0;
+static Route routes[MAX_HTTP_ROUTES] = {0};
+static uint8_t routes_used = 0;
 
 const char* GetContentType(const char *path)
 {

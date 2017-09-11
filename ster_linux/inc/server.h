@@ -14,7 +14,7 @@ https://github.com/starnight/MicroHttpServer
 
 
 #define MAX_HEADER_SIZE  1024
-#define MAX_BODY_SIZE    100000000
+#define MAX_BODY_SIZE    8192 //32kb
 
 #ifndef HTTP_PORT
 #define HTTP_PORT         8080
@@ -89,10 +89,14 @@ typedef struct _HTTPResMessage
 	HTTPResHeader Header;
 	uint8_t *Body;
 	uint8_t *_buf;
+//	uint8_t _buf[MAX_HTTP_CLIENT][MAX_HEADER_SIZE + MAX_BODY_SIZE];
 	uint64_t _index;
 } HTTPResMessage;
 
 typedef void (*HTTPREQ_CALLBACK)(HTTPReqMessage *, HTTPResMessage *);
+
+uint8_t res_buf[MAX_HTTP_CLIENT][MAX_HEADER_SIZE + MAX_BODY_SIZE];
+uint8_t req_buf[MAX_HTTP_CLIENT][MAX_HEADER_SIZE + MAX_BODY_SIZE];
 
 void Http_ServerInit(HTTPServer *, uint16_t);
 void Http_ServerRun(HTTPServer *, HTTPREQ_CALLBACK);

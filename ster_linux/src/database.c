@@ -44,6 +44,7 @@ void DataBase_TestInsert(void)
 
 void DataBase_Init(void)
 {
+	pthread_mutex_lock(&uartDB_mutex);
 	sqlite3 * database;
 	char * zErrMsg = 0;
 	char * sqlStatement = (char*)calloc(MAX_STATEMENT_LEN, sizeof(char));
@@ -111,10 +112,13 @@ void DataBase_Init(void)
 		sqlite3_close(database);
 		free(sqlStatement);
 	}
+
+	pthread_mutex_unlock(&uartDB_mutex);
 }
 
 void DataBase_InsertBasicMeas(basic_meas_t * meas)
 {
+	pthread_mutex_lock(&uartDB_mutex);
 	sqlite3 * database;
 	char * zErrMsg = 0;
 	char * sqlStatement = (char*)calloc(MAX_STATEMENT_LEN, sizeof(char));
@@ -161,10 +165,13 @@ void DataBase_InsertBasicMeas(basic_meas_t * meas)
 		sqlite3_close(database);
 		free(sqlStatement);
 	}
+
+	pthread_mutex_unlock(&uartDB_mutex);
 }
 
 void DataBase_InsertPhMeas(ph_meas_t * meas)
 {
+	pthread_mutex_lock(&uartDB_mutex);
 	sqlite3 * database;
 	char * zErrMsg = 0;
 	char * sqlStatement = (char*)calloc(MAX_STATEMENT_LEN, sizeof(char));
@@ -225,10 +232,13 @@ void DataBase_InsertPhMeas(ph_meas_t * meas)
 		sqlite3_close(database);
 		free(sqlStatement);
 	}
+
+	pthread_mutex_unlock(&uartDB_mutex);
 }
 
 void DataBase_SelectMeasData(basic_meas_t * basicMeas, ph_meas_t * phMeas)
 {
+	pthread_mutex_lock(&uartDB_mutex);
 	sqlite3 * database;
 	char * zErrMsg = 0;
 	char * sqlStatement = (char*)calloc(MAX_STATEMENT_LEN, sizeof(char));
@@ -299,6 +309,8 @@ void DataBase_SelectMeasData(basic_meas_t * basicMeas, ph_meas_t * phMeas)
 		sqlite3_close(database);
 		free(sqlStatement);
 	}
+
+	pthread_mutex_unlock(&uartDB_mutex);
 }
 
 static int SelectBasicMeas_Callback(void *NotUsed, int argc, char **argv, char **colName)

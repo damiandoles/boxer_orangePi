@@ -34,9 +34,7 @@ typedef struct _HTTPReq
 	uint8_t work_state;
 } HTTPReq;
 
-HTTPReq http_req[MAX_HTTP_CLIENT] = {0};
-uint8_t req_buf[MAX_HTTP_CLIENT][MAX_HEADER_SIZE + MAX_BODY_SIZE] = {0};
-uint8_t res_buf[MAX_HTTP_CLIENT][MAX_HEADER_SIZE + MAX_BODY_SIZE] = {0};
+static HTTPReq http_req[MAX_HTTP_CLIENT] = {0};
 
 void Http_ServerInit(HTTPServer *srv, uint16_t port)
 {
@@ -73,8 +71,10 @@ void Http_ServerInit(HTTPServer *srv, uint16_t port)
 	/* Prepare the HTTP client requests pool. */
 	for (i = 0; i < MAX_HTTP_CLIENT; i++)
 	{
+//		http_req[i].req._buf =(uint8_t*)calloc(MAX_HEADER_SIZE + MAX_BODY_SIZE, sizeof(uint8_t));
 		http_req[i].req._buf = req_buf[i];
 		http_req[i].res._buf = res_buf[i];
+//		http_req[i].res._buf = (uint8_t*)calloc(MAX_HEADER_SIZE + MAX_BODY_SIZE, sizeof(uint8_t));
 		http_req[i].clisock = -1;
 		http_req[i].work_state = NOTWORK_SOCKET;
 	}

@@ -25,8 +25,6 @@ static void SaveNetwork(HTTPReqMessage *req, HTTPResMessage *res);
 static void Reset(HTTPReqMessage *req, HTTPResMessage *res);
 static void FactoryDef(HTTPReqMessage *req, HTTPResMessage *res);
 
-static pthread_mutex_t httpDB_mutex;
-
 static const char Code200_txtplain[] = "HTTP/1.1 200 OK\r\n" \
 		"Connection: close\r\n" \
 		"Content-Type: text/plain; " \
@@ -41,14 +39,15 @@ static const char Code200_appxwww[] = "HTTP/1.1 200 OK\r\n" \
 #define CODE200_APP_WWW_LEN  		strlen(Code200_appxwww)
 
 #define MAX_RESP_BODY_LEN 		128
+#define MAX_GETMEAS_RESP_LEN	512
 
 void HttpReq_RegisterUserHandlers(void)
 {
-	AddRouteHandler(HTTP_GET, "/GetLamp",   	GetLamp);
-	AddRouteHandler(HTTP_GET, "/GetMeas",   	GetMeas);
-	AddRouteHandler(HTTP_GET, "/GetTempFan",   	GetTempFan);
-	AddRouteHandler(HTTP_GET, "/GetAdvanced",  	GetAdvanced);
-	AddRouteHandler(HTTP_GET, "/GetIrr",   		GetIrr);
+	AddRouteHandler(HTTP_POST, "/GetLamp",   	GetLamp);
+	AddRouteHandler(HTTP_POST, "/GetMeas",   	GetMeas);
+	AddRouteHandler(HTTP_POST, "/GetTempFan",   	GetTempFan);
+	AddRouteHandler(HTTP_POST, "/GetAdvanced",  	GetAdvanced);
+	AddRouteHandler(HTTP_POST, "/GetIrr",   		GetIrr);
 
 	AddRouteHandler(HTTP_POST, "/SaveLamp",  	SaveLamp);
 	AddRouteHandler(HTTP_POST, "/SaveTempFan",  SaveTempFan);
@@ -62,28 +61,22 @@ void HttpReq_RegisterUserHandlers(void)
 
 static void GetLamp(HTTPReqMessage *req, HTTPResMessage *res)
 {
-	printf("GetLamp GET request\r\n");
-	memcpy(res->_buf, Code200_txtplain, CODE200_TXT_PLAIN_LEN);
-	res->_index = CODE200_TXT_PLAIN_LEN;
+	printf("GetLamp POST request\r\n");
 }
 
 static void GetMeas(HTTPReqMessage *req, HTTPResMessage *res)
 {
+	printf("GetMeas POST request\r\n");
 	basic_meas_t m_basic;
 	ph_meas_t m_ph;
 
-	pthread_mutex_lock(&httpDB_mutex);
 	DataBase_SelectMeasData(&m_basic, &m_ph);
-	pthread_mutex_unlock(&httpDB_mutex);
-
-	printf("GetMeas GET request\r\n");
-	memcpy(res->_buf, Code200_txtplain, CODE200_TXT_PLAIN_LEN);
-
-	char * respBody = (char*)calloc(MAX_RESP_BODY_LEN, sizeof(char));
+	char Code200_GetMeas[MAX_GETMEAS_RESP_LEN] = {0};
+	char * respBody = (char*)calloc(MAX_GETMEAS_RESP_LEN, sizeof(char));
 
 	snprintf(
 			respBody,
-			MAX_RESP_BODY_LEN,
+			MAX_GETMEAS_RESP_LEN,
 			"%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n",
 			m_basic.humidity,
 			m_basic.lux,
@@ -92,32 +85,35 @@ static void GetMeas(HTTPReqMessage *req, HTTPResMessage *res)
 			m_basic.temp_down,
 			m_basic.soil_moist);
 
-	size_t respBodyLen = strlen(respBody);
-	res->Body = (uint8_t*)calloc(MAX_RESP_BODY_LEN, sizeof(uint8_t));
-	strcpy((char*)res->Body, respBody);
-	strcat((char*)res->_buf, (char*)res->Body);
-	res->_index = CODE200_TXT_PLAIN_LEN + respBodyLen;
+	snprintf(Code200_GetMeas,
+			MAX_GETMEAS_RESP_LEN,
+			"HTTP/1.1 200 OK\r\n" \
+			"Connection: close\r\n" \
+			"Content-Type: text/plain; charset=UTF-8\r\n" \
+			"Content-Lenght: %i\r\n\r\n",
+			(int)strlen(respBody));
+
+	memset(res_buf, 0, sizeof(res_buf));
+	memcpy(res->_buf, Code200_GetMeas, strlen(Code200_GetMeas));
+	strcat((char*)res->_buf, respBody);
+	res->_index = strlen((char*)res->_buf);
+
+	free(respBody);
 }
 
 static void GetTempFan(HTTPReqMessage *req, HTTPResMessage *res)
 {
-	printf("GetTempFan GET request\r\n");
-	memcpy(res->_buf, Code200_txtplain, CODE200_TXT_PLAIN_LEN);
-	res->_index = CODE200_TXT_PLAIN_LEN;
+	printf("GetTempFan POST request\r\n");
 }
 
 static void GetAdvanced(HTTPReqMessage *req, HTTPResMessage *res)
 {
-	printf("GetAdvanced GET request\r\n");
-	memcpy(res->_buf, Code200_txtplain, CODE200_TXT_PLAIN_LEN);
-	res->_index = CODE200_TXT_PLAIN_LEN;
+	printf("GetAdvanced POST request\r\n");
 }
 
 static void GetIrr(HTTPReqMessage *req, HTTPResMessage *res)
 {
-	printf("GetIrr GET request\r\n");
-	memcpy(res->_buf, Code200_txtplain, CODE200_TXT_PLAIN_LEN);
-	res->_index = CODE200_TXT_PLAIN_LEN;
+	printf("GetIrr POST request\r\n");
 }
 
 static void SaveLamp(HTTPReqMessage *req, HTTPResMessage *res)

@@ -56,6 +56,8 @@ int main(void)
 	pthread_join(uartTxThreadHandler, NULL);
 	pthread_join(httpThreadHandler, NULL);
 
+	pthread_mutex_destroy (&uartDB_mutex);
+
 	return EXIT_SUCCESS;
 }
 
@@ -73,7 +75,7 @@ void * uartTxThread(void * param)
 {
 	while (true)
 	{
-		sleep(2);
+//		sleep(2);
 #ifdef DEBUG_UART_TX
 		printf("UART TX THREAD\r\n");
 #endif

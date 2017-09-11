@@ -11,9 +11,10 @@
 // if you want to have reference to library open terminal and put:
 // sudo apt-get install libsqlite3-dev
 #include <sqlite3.h>
+#include <pthread.h>
 #include "types.h"
 
-
+pthread_mutex_t uartDB_mutex; //uart have highest priority than web server
 
 void DataBase_Init(void);
 void DataBase_InsertBasicMeas(basic_meas_t * meas);
