@@ -170,9 +170,7 @@ void Uart_RxHandler(void)
 									strcpy(recvMeasData->temp_down, 	ReceivedString[6]);
 									strcpy(recvMeasData->soil_moist, 	ReceivedString[7]);
 
-//									pthread_mutex_lock(&uartDB_mutex);
 									DataBase_InsertBasicMeas(recvMeasData);
-//									pthread_mutex_unlock(&uartDB_mutex);
 
 									rxBuffIndex = 0;
 									memset(rxBuffer, 0, RX_BUFF_SIZE);
@@ -192,9 +190,7 @@ void Uart_RxHandler(void)
 									ph_meas_t * recvPhMeas = (ph_meas_t *)calloc(sizeof(recvPhMeas), sizeof(ph_meas_t));
 									strcpy(recvPhMeas->ph_water, ReceivedString[2]);
 
-//									pthread_mutex_lock(&uartDB_mutex);
 									DataBase_InsertPhMeas(recvPhMeas);
-//									pthread_mutex_unlock(&uartDB_mutex);
 
 									rxBuffIndex = 0;
 									memset(rxBuffer, 0, RX_BUFF_SIZE);
@@ -214,9 +210,7 @@ void Uart_RxHandler(void)
 									ph_meas_t * recvPhMeas = (ph_meas_t *)calloc(sizeof(recvPhMeas), sizeof(ph_meas_t));
 									strcpy(recvPhMeas->ph_soil,  ReceivedString[2]);
 
-//									pthread_mutex_lock(&uartDB_mutex);
 									DataBase_InsertPhMeas(recvPhMeas);
-//									pthread_mutex_unlock(&uartDB_mutex);
 
 									rxBuffIndex = 0;
 									memset(rxBuffer, 0, RX_BUFF_SIZE);
