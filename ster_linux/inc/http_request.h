@@ -8,11 +8,6 @@
 #ifndef INC_HTTP_REQUEST_H_
 #define INC_HTTP_REQUEST_H_
 
-//#include <http_middleware.h>
-//#include <server.h>
-//
-//HTTPServer srv;
-
 #include "civetweb.h"
 
 void HttpReq_RegisterUserHandlers(struct mg_context *ctx);

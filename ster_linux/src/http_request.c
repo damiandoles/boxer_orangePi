@@ -8,11 +8,17 @@
 #include <string.h>
 #include <pthread.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "server_middleware.h"
 #include "http_request.h"
 #include "database.h"
 #include "settings.h"
+
+#define MAX_RESP_BODY_LEN 			512
+
+#define MAX_POST_FORM_PARAMS		16
+#define MAX_POST_PORM_PARAMS_LEN	8
 
 int GetLamp(struct mg_connection *conn, void *cbdata);
 int GetMeas(struct mg_connection *conn, void *cbdata);
@@ -29,7 +35,7 @@ int SaveNetwork(struct mg_connection *conn, void *cbdata);
 int Reset(struct mg_connection *conn, void *cbdata);
 int FactoryDef(struct mg_connection *conn, void *cbdata);
 
-#define MAX_RESP_BODY_LEN 		512
+static char ** Http_ExtractPostForm(char *str, int paramsNum);
 
 void HttpReq_RegisterUserHandlers(struct mg_context *ctx)
 {
@@ -59,10 +65,10 @@ int GetLamp(struct mg_connection *conn, void *cbdata)
 			respBody,
 			MAX_RESP_BODY_LEN,
 			"%d\r\n%d\r\n%d\r\n%s\r\n0\r\n0\r\n", //+ counters
-			defSettings.lightSettings.timeOn,
-			defSettings.lightSettings.timeOff,
-			defSettings.lightSettings.initState,
-			defSettings.lightSettings.turnOnOffTime);
+			defaultSettings.lightSettings.timeOn,
+			defaultSettings.lightSettings.timeOff,
+			defaultSettings.lightSettings.state,
+			defaultSettings.lightSettings.turnOnOffTime);
 
 	mg_printf(conn, "HTTP/1.1 200 OK\r\n" \
 			"Connection: close\r\n" \
@@ -114,10 +120,10 @@ int GetTempFan(struct mg_connection *conn, void *cbdata)
 			respBody,
 			MAX_RESP_BODY_LEN,
 			"%d\r\n%d\r\n%d\r\n%.1f\r\n",
-			defSettings.tempFanSettings.mode,
-			defSettings.tempFanSettings.pullFan,
-			defSettings.tempFanSettings.pushFan,
-			defSettings.tempFanSettings.tempMax);
+			defaultSettings.tempFanSettings.mode,
+			defaultSettings.tempFanSettings.pullFan,
+			defaultSettings.tempFanSettings.pushFan,
+			defaultSettings.tempFanSettings.tempMax);
 
 	mg_printf(conn, "HTTP/1.1 200 OK\r\n" \
 			"Connection: close\r\n" \
@@ -137,16 +143,17 @@ int GetAdvanced(struct mg_connection *conn, void *cbdata)
 			respBody,
 			MAX_RESP_BODY_LEN,
 			"%d\r\n%s\r\n%s\r\n%s\r\n",
-			defSettings.networkSettings.dhcpEnabled,
-			defSettings.networkSettings.ipAddr,
-			defSettings.networkSettings.mask,
-			defSettings.networkSettings.gate);
+			defaultSettings.networkSettings.dhcpEnabled,
+			defaultSettings.networkSettings.staticIpAddr,
+			defaultSettings.networkSettings.mask,
+			defaultSettings.networkSettings.gate);
 
 	mg_printf(conn, "HTTP/1.1 200 OK\r\n" \
 			"Connection: close\r\n" \
 			"Content-Type: text/plain; charset=UTF-8\r\n" \
 			"Content-Lenght: %i\r\n\r\n %s",
 			(int)strlen(respBody), respBody);
+
 	free(respBody);
 	return 1;
 }
@@ -160,16 +167,17 @@ int GetIrr(struct mg_connection *conn, void *cbdata)
 			respBody,
 			MAX_RESP_BODY_LEN,
 			"%d\r\n%d\r\n%d\r\n%s\r\n",
-			defSettings.irrSettings.mode,
-			defSettings.irrSettings.waterAmount,
-			defSettings.irrSettings.freq,
-			defSettings.irrSettings.startTime);
+			defaultSettings.irrSettings.mode,
+			defaultSettings.irrSettings.waterAmount,
+			defaultSettings.irrSettings.freq,
+			defaultSettings.irrSettings.startTime);
 
 	mg_printf(conn, "HTTP/1.1 200 OK\r\n" \
 			"Connection: close\r\n" \
 			"Content-Type: text/plain; charset=UTF-8\r\n" \
 			"Content-Lenght: %i\r\n\r\n %s",
 			(int)strlen(respBody), respBody);
+
 	free(respBody);
 	return 1;
 }
@@ -177,95 +185,117 @@ int GetIrr(struct mg_connection *conn, void *cbdata)
 int SaveLamp(struct mg_connection *conn, void *cbdata)
 {
 	(void)cbdata;
-//	char * data;
-//	size_t dataSize = strlen((const char*)req->Body);
-//	if (dataSize > 0)
-//	{
-//		data = (char*)calloc(dataSize, sizeof(char));
-//		strcpy(data, (const char *)req->Body);
-//		printf("SaveLamp POST request: %s\r\n", data);
-//		memcpy(res->_buf, Code200_appxwww, CODE200_APP_WWW_LEN);
-//		res->_index = CODE200_APP_WWW_LEN;
-//
-//		free(data);
-//	}
-	//TODO save lamp settings to the JSON file
+	char contentBuff[128] = {0};
+	int len = mg_read(conn, contentBuff, sizeof(contentBuff)/sizeof(*(contentBuff)));
+	if (len > 0)
+	{
+		char ** values = Http_ExtractPostForm(contentBuff, 4);
+
+		actualSettings.lightSettings.timeOn 	= atoi(values[0]);
+		actualSettings.lightSettings.timeOff 	= atoi(values[1]);
+		actualSettings.lightSettings.state 		= atoi(values[2]);
+		strcpy(actualSettings.lightSettings.turnOnOffTime, values[3]);
+
+		mg_printf(conn, "HTTP/1.1 200 OK\r\n" \
+				"Connection: close\r\n" \
+				"Content-Type: application/x-www-form-urlencoded\r\n\r\n");
+	}
+
 	return 1;
 }
 
 int SaveTempFan(struct mg_connection *conn, void *cbdata)
 {
 	(void)cbdata;
-//	char * data;
-//	size_t dataSize = strlen((const char*)req->Body);
-//	if (dataSize > 0)
-//	{
-//		data = (char*)calloc(dataSize, sizeof(char));
-//		strcpy(data, (const char *)req->Body);
-//		printf("SaveTempFan POST request: %s\r\n", data);
-//		memcpy(res->_buf, Code200_appxwww, CODE200_APP_WWW_LEN);
-//		res->_index = CODE200_APP_WWW_LEN;
-//
-//		free(data);
-//	}
-	//TODO save temp/fan settings to the JSON file
+	char contentBuff[128] = {0};
+	int len = mg_read(conn, contentBuff, sizeof(contentBuff)/sizeof(*(contentBuff)));
+	if (len > 0)
+	{
+		char ** values = Http_ExtractPostForm(contentBuff, 4);
+
+		actualSettings.tempFanSettings.mode 	= atoi(values[0]);
+		actualSettings.tempFanSettings.tempMax 	= strtod(values[1], NULL);
+		actualSettings.tempFanSettings.pushFan 	= atoi(values[2]);
+		actualSettings.tempFanSettings.pullFan 	= atoi(values[3]);
+
+		mg_printf(conn, "HTTP/1.1 200 OK\r\n" \
+				"Connection: close\r\n" \
+				"Content-Type: application/x-www-form-urlencoded\r\n\r\n");
+	}
+
 	return 1;
 }
 
 int SaveCalibPh(struct mg_connection *conn, void *cbdata)
 {
 	(void)cbdata;
-//	char * data;
-//	size_t dataSize = strlen((const char*)req->Body);
-//	if (dataSize > 0)
-//	{
-//		data = (char*)calloc(dataSize, sizeof(char));
-//		strcpy(data, (const char *)req->Body);
-//		printf("SaveCalibPh POST request: %s\r\n", data);
-//		memcpy(res->_buf, Code200_appxwww, CODE200_APP_WWW_LEN);
-//		res->_index = CODE200_APP_WWW_LEN;
-//
-//		free(data);
-//	}
-	//TODO start calibration, calculate ph equation factors and save it to the JSON file
+	char contentBuff[128] = {0};
+	int len = mg_read(conn, contentBuff, sizeof(contentBuff)/sizeof(*(contentBuff)));
+	if (len > 0)
+	{
+		char * splitStr = strtok(contentBuff, "=");
+		splitStr = strtok(NULL, "="); // 1 - water ; 2 - soil
+
+		mg_printf(conn, "HTTP/1.1 200 OK\r\n" \
+				"Connection: close\r\n" \
+				"Content-Type: application/x-www-form-urlencoded\r\n\r\n");
+	}
+
+	//TODO calibration
 	return 1;
 }
 
 int SaveIrr(struct mg_connection *conn, void *cbdata)
 {
 	(void)cbdata;
-//	char * data;
-//	size_t dataSize = strlen((const char*)req->Body);
-//	if (dataSize > 0)
-//	{
-//		data = (char*)calloc(dataSize, sizeof(char));
-//		strcpy(data, (const char *)req->Body);
-//		printf("SaveIrr POST request: %s\r\n", data);
-//		memcpy(res->_buf, Code200_appxwww, CODE200_APP_WWW_LEN);
-//		res->_index = CODE200_APP_WWW_LEN;
-//
-//		free(data);
-//	}
-	//TODO save irrigation settings to the JSON file
+	char contentBuff[128] = {0};
+	int len = mg_read(conn, contentBuff, sizeof(contentBuff)/sizeof(*(contentBuff)));
+	if (len > 0)
+	{
+		char ** values = Http_ExtractPostForm(contentBuff, 4);
+
+		actualSettings.irrSettings.mode 		= atoi(values[0]);
+		actualSettings.irrSettings.waterAmount 	= atoi(values[1]);
+		actualSettings.irrSettings.freq 		= atoi(values[2]);
+		strcpy(actualSettings.irrSettings.startTime, values[3]);
+
+		mg_printf(conn, "HTTP/1.1 200 OK\r\n" \
+				"Connection: close\r\n" \
+				"Content-Type: application/x-www-form-urlencoded\r\n\r\n");
+	}
+
 	return 1;
 }
 
 int SaveNetwork(struct mg_connection *conn, void *cbdata)
 {
 	(void)cbdata;
-//	char * data;
-//	size_t dataSize = strlen((const char*)req->Body);
-//	if (dataSize > 0)
-//	{
-//		data = (char*)calloc(dataSize, sizeof(char));
-//		strcpy(data, (const char *)req->Body);
-//		printf("SaveNetwork POST request: %s\r\n", data);
-//		memcpy(res->_buf, Code200_appxwww, CODE200_APP_WWW_LEN);
-//		res->_index = CODE200_APP_WWW_LEN;
-//
-//		free(data);
-//	}
-	//TODO save network settings to the JSON file
+	char contentBuff[128] = {0};
+	int len = mg_read(conn, contentBuff, sizeof(contentBuff)/sizeof(*(contentBuff)));
+	if (len > 0)
+	{
+		char ** values = Http_ExtractPostForm(contentBuff, 4);
+
+		actualSettings.networkSettings.dhcpEnabled = atoi(values[0]);
+
+		if (actualSettings.networkSettings.dhcpEnabled == DHCP_OFF)
+		{
+			strcpy(actualSettings.networkSettings.staticIpAddr, values[1]);
+			strcpy(actualSettings.networkSettings.mask, values[2]);
+			strcpy(actualSettings.networkSettings.gate, values[3]);
+		}
+		else
+		{
+			memset(actualSettings.networkSettings.staticIpAddr, 0, IP_FORMAT_LEN);
+			memset(actualSettings.networkSettings.mask, 0, IP_FORMAT_LEN);
+			memset(actualSettings.networkSettings.gate, 0, IP_FORMAT_LEN);
+		}
+
+		mg_printf(conn, "HTTP/1.1 200 OK\r\n" \
+				"Connection: close\r\n" \
+				"Content-Type: application/x-www-form-urlencoded\r\n\r\n");
+	}
+
 	return 1;
 }
 
@@ -286,6 +316,8 @@ int FactoryDef(struct mg_connection *conn, void *cbdata)
 {
 	(void)cbdata;
 	printf("FactoryDef HEAD request\r\n");
+
+	memcpy(&actualSettings, &defaultSettings, sizeof(dev_settings_t));
 	mg_printf(conn,
 	          "HTTP/1.1 200 OK\r\n"
 	          "Content-Type: text/plain; charset=UTF-8\r\n"
@@ -293,4 +325,55 @@ int FactoryDef(struct mg_connection *conn, void *cbdata)
 
 	//TODO restore factory settings (JSON file)
 	return 1;
+}
+
+static char ** Http_ExtractPostForm(char *str, int paramsNum)
+{
+    char **ret = (char **)malloc(MAX_POST_FORM_PARAMS * sizeof(char *)); //rows
+    int row;
+
+    for (row = 0; row < 16; row++)
+    {
+        ret[row] = (char *)malloc(MAX_POST_PORM_PARAMS_LEN * sizeof(char)); //columns
+    }
+
+	char * splitStr = 0;
+	int i = 0;
+	splitStr = strtok (str, "&");
+	strcpy(ret[i], splitStr);
+
+	while (splitStr != NULL)
+	{
+		if (i < 16 - 1)
+		{
+			i++;
+		}
+		else
+		{
+			break;
+		}
+
+		splitStr = strtok (NULL, "&");
+		if (splitStr != 0x0)
+		{
+			strcpy(ret[i], splitStr);
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	for (i = 0; i < paramsNum; i++)
+	{
+		splitStr = strtok(ret[i], "=");
+		if (splitStr != NULL)
+		{
+			splitStr = strtok(NULL, "=");
+			strcpy(ret[i], splitStr);
+		}
+
+	}
+
+	return &(*ret);
 }

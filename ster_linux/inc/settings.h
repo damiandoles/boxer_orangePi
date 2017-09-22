@@ -11,34 +11,67 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define IP_FORMAT_LEN	15
+#define SHORT_TIME_LEN	5
+
+typedef uint8_t 		hours_num_t;
+typedef uint16_t 		ml_t;
+typedef uint8_t 		percent_t;
+typedef uint8_t			days_t;
+
+typedef enum LightInitState
+{
+	LIGHT_STATE_TURN_OFF,
+	LIGHT_STATE_TURN_ON
+}light_state_t;
+
+typedef enum TempFanMode
+{
+	TEMP_FAN_MANUAL_MODE,
+	TEMP_FAN_AUTO_MODE
+}temp_fan_mode_t;
+
+typedef enum IrrMode
+{
+	IRR_MANUAL_MODE,
+	IRR_AUTO_SOIL_MOISTURE_MODE,
+	IRR_AUTO_TIMER_MODE
+}irr_mode_t;
+
+typedef enum DhcpMode
+{
+	DHCP_OFF,
+	DHCP_ON
+}dhcp_mode_t;
+
 typedef struct LightSettings
 {
-	uint8_t timeOn;
-	uint8_t timeOff;
-	bool initState;
+	hours_num_t timeOn;
+	hours_num_t timeOff;
+	light_state_t state;
 	char * turnOnOffTime;
 }light_sett_t;
 
 typedef struct TempFanSettings
 {
-	uint8_t mode;
-	uint8_t pullFan;
-	uint8_t pushFan;
+	temp_fan_mode_t mode;
+	percent_t pullFan;
+	percent_t pushFan;
 	float tempMax;
 }temp_fan_sett_t;
 
 typedef struct IrrigationSettings
 {
-	uint8_t mode;
-	uint16_t waterAmount;
-	uint8_t freq;
+	irr_mode_t mode;
+	ml_t waterAmount;
+	days_t freq;
 	char * startTime;
 }irr_sett_t;
 
 typedef struct NetworkSettings
 {
-	bool dhcpEnabled;
-	char * ipAddr;
+	dhcp_mode_t dhcpEnabled;
+	char * staticIpAddr;
 	char * mask;
 	char * gate;
 }network_sett_t;
@@ -51,32 +84,10 @@ typedef struct DeviceSettings
 	network_sett_t networkSettings;
 }dev_settings_t;
 
-const dev_settings_t defSettings =
-{
-	{
-		.timeOn 		= 12,
-		.timeOff 		= 12,
-		.initState 		= false,
-		.turnOnOffTime 	= "06:00"
-	},
-	{
-		.mode 			= 1,
-		.pullFan 		= 50,
-		.pushFan 		= 50,
-		.tempMax 		= 26.0
-	},
-	{
-		.mode 			= 2,
-		.waterAmount 	= 500,
-		.freq 			= 3,
-		.startTime 		= "00:00"
-	},
-	{
-		.dhcpEnabled 	= true,
-		.ipAddr 		= "---.---.---.---",
-		.mask 			= "---.---.---.---",
-		.gate 			= "---.---.---.---"
-	}
-};
+extern const dev_settings_t defaultSettings;
+dev_settings_t actualSettings;
+
+void GetDevSettings(dev_settings_t *settings);
+void SetDevSettings(dev_settings_t *settings);
 
 #endif /* INC_SETTINGS_H_ */

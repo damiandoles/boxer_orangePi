@@ -24,6 +24,7 @@
 #include "debug.h"
 #include "server_middleware.h"
 #include "http_request.h"
+#include "settings.h"
 
 void * uartRxThread(void * param);
 void * uartTxThread(void * param);
@@ -285,9 +286,11 @@ int log_message(const struct mg_connection *conn, const char *message)
 int main(void) //TODO MAIN !!!!
 {
 	signal(SIGINT, TerminateApp);
-	Uart_Init();
+//	Uart_Init();
 	DataBase_Init();
 	DataBase_TestInsert();
+	dev_settings_t tempSettings = {0};
+	GetDevSettings(&tempSettings);
 
 	errno = pthread_create(&uartTxThreadHandler, NULL, uartTxThread, NULL);
 	errno = pthread_create(&uartRxThreadHandler, NULL, uartRxThread, NULL);

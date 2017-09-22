@@ -316,10 +316,11 @@ void DataBase_SelectMeasData(basic_meas_t * basicMeas, ph_meas_t * phMeas)
 
 static int SelectBasicMeas_Callback(void *NotUsed, int argc, char **argv, char **colName)
 {
+	(void)NotUsed;
     for (int i = 0; i < argc; i++)
     {
-        printf("%s = %s\t", colName[i], argv[i] ?  : "NULL");
-        strcpy(sBasicMeas[i], argv[i] ?  : "NULL");
+        printf("%s = %s\t", colName[i], argv[i] ? argv[i] : "NULL");
+        strcpy(sBasicMeas[i], argv[i] ? argv[i] : "NULL");
     }
 
     printf("\r\n");
@@ -328,11 +329,12 @@ static int SelectBasicMeas_Callback(void *NotUsed, int argc, char **argv, char *
 
 static int SelectPhMeas_Callback(void *NotUsed, int argc, char **argv, char **colName)
 {
+	(void)NotUsed;
 	memset(sPhMeas,0,16);
     for (int i = 0; i < argc; i++)
     {
-        printf("%s = %s\t", colName[i], argv[i] ?  : "NULL");
-        strcpy(sPhMeas[i], argv[i] ?  : "NULL");
+        printf("%s = %s\t", colName[i], argv[i] ? argv[i] : "NULL");
+        strcpy(sPhMeas[i], argv[i] ? argv[i] : "NULL");
     }
 
     printf("\r\n");
