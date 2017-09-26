@@ -65,10 +65,10 @@ int GetLamp(struct mg_connection *conn, void *cbdata)
 			respBody,
 			MAX_RESP_BODY_LEN,
 			"%d\r\n%d\r\n%d\r\n%s\r\n0\r\n0\r\n", //+ counters
-			defaultSettings.lightSettings.timeOn,
-			defaultSettings.lightSettings.timeOff,
-			defaultSettings.lightSettings.state,
-			defaultSettings.lightSettings.turnOnOffTime);
+			actualSettings.lightSettings.timeOn,
+			actualSettings.lightSettings.timeOff,
+			actualSettings.lightSettings.state,
+			actualSettings.lightSettings.turnOnOffTime);
 
 	mg_printf(conn, "HTTP/1.1 200 OK\r\n" \
 			"Connection: close\r\n" \
@@ -120,10 +120,10 @@ int GetTempFan(struct mg_connection *conn, void *cbdata)
 			respBody,
 			MAX_RESP_BODY_LEN,
 			"%d\r\n%d\r\n%d\r\n%.1f\r\n",
-			defaultSettings.tempFanSettings.mode,
-			defaultSettings.tempFanSettings.pullFan,
-			defaultSettings.tempFanSettings.pushFan,
-			defaultSettings.tempFanSettings.tempMax);
+			actualSettings.tempFanSettings.mode,
+			actualSettings.tempFanSettings.pullFan,
+			actualSettings.tempFanSettings.pushFan,
+			actualSettings.tempFanSettings.tempMax);
 
 	mg_printf(conn, "HTTP/1.1 200 OK\r\n" \
 			"Connection: close\r\n" \
@@ -143,10 +143,10 @@ int GetAdvanced(struct mg_connection *conn, void *cbdata)
 			respBody,
 			MAX_RESP_BODY_LEN,
 			"%d\r\n%s\r\n%s\r\n%s\r\n",
-			defaultSettings.networkSettings.dhcpEnabled,
-			defaultSettings.networkSettings.staticIpAddr,
-			defaultSettings.networkSettings.mask,
-			defaultSettings.networkSettings.gate);
+			actualSettings.networkSettings.dhcpEnabled,
+			actualSettings.networkSettings.staticIpAddr,
+			actualSettings.networkSettings.mask,
+			actualSettings.networkSettings.gate);
 
 	mg_printf(conn, "HTTP/1.1 200 OK\r\n" \
 			"Connection: close\r\n" \
@@ -167,10 +167,10 @@ int GetIrr(struct mg_connection *conn, void *cbdata)
 			respBody,
 			MAX_RESP_BODY_LEN,
 			"%d\r\n%d\r\n%d\r\n%s\r\n",
-			defaultSettings.irrSettings.mode,
-			defaultSettings.irrSettings.waterAmount,
-			defaultSettings.irrSettings.freq,
-			defaultSettings.irrSettings.startTime);
+			actualSettings.irrSettings.mode,
+			actualSettings.irrSettings.waterAmount,
+			actualSettings.irrSettings.freq,
+			actualSettings.irrSettings.startTime);
 
 	mg_printf(conn, "HTTP/1.1 200 OK\r\n" \
 			"Connection: close\r\n" \
@@ -234,7 +234,22 @@ int SaveCalibPh(struct mg_connection *conn, void *cbdata)
 	if (len > 0)
 	{
 		char * splitStr = strtok(contentBuff, "=");
-		splitStr = strtok(NULL, "="); // 1 - water ; 2 - soil
+		splitStr = strtok(NULL, "=");
+
+		calib_probe_t probeType = CALIB_PH_NONE_PROBE;
+		probeType = (calib_probe_t)splitStr;
+
+		switch (probeType)
+		{
+		case CALIB_PH_WATER_PROBE:
+			break;
+
+		case CALIB_PH_SOIL_PROBE:
+			break;
+
+		default:
+			break;
+		}
 
 		mg_printf(conn, "HTTP/1.1 200 OK\r\n" \
 				"Connection: close\r\n" \

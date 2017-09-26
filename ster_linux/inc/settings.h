@@ -44,6 +44,13 @@ typedef enum DhcpMode
 	DHCP_ON
 }dhcp_mode_t;
 
+typedef enum PhCalib
+{
+	CALIB_PH_NONE_PROBE,
+	CALIB_PH_WATER_PROBE,
+	CALIB_PH_SOIL_PROBE
+}calib_probe_t;
+
 typedef struct LightSettings
 {
 	hours_num_t timeOn;

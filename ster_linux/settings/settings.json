@@ -1,0 +1,26 @@
+{
+    "lamp_settings": {
+        "time_on": 12,
+        "time_off": 12,
+        "initial_state": 0,
+        "turn_on_off_time": "00:00"
+    },
+    "temp_fan_settings": {
+        "mode": 1,
+        "pullfan": 50,
+        "pushfan": 50,
+        "temp_max": 25.0
+    },
+    "irrigation_settings": {
+        "mode": 2,
+        "water_amount": 500,
+        "freqency": 3,
+        "start_time": "22:00" 
+    },
+    "network_settings": {
+        "dhcp_mode": 1,
+        "ipaddr": "---.---.---.---",
+        "mask": "---.---.---.---",
+        "gate": "---.---.---.---"
+    }
+}

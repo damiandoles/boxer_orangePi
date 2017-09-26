@@ -31,6 +31,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/boxer_orangePI/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/boxer_orangePI/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/boxer_orangePI/src/inl}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/boxer_orangePI/settings}&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.dialect.std.699465234" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.c.compiler.dialect.c99" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1319917991" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
@@ -66,6 +67,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/boxer_orangePI/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/boxer_orangePI/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/boxer_orangePI/src/inl}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/boxer_orangePI/settings}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.276236979" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
@@ -105,6 +107,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/boxer_orangePI/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/boxer_orangePI/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/boxer_orangePI/src/inl}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/boxer_orangePI/settings}&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1041044470" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="ENABLE_STATIC_FILE=1"/>
@@ -126,6 +129,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/boxer_orangePI/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/boxer_orangePI/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/boxer_orangePI/src/inl}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/boxer_orangePI/settings}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1189582123" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
