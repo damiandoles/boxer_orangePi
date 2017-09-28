@@ -260,7 +260,7 @@ int SaveCalibPh(struct mg_connection *conn, void *cbdata)
 				"Content-Type: application/x-www-form-urlencoded\r\n\r\n");
 	}
 
-	//TODO calibration
+	//TODO Send calibration command to ph module
 	return 1;
 }
 
@@ -347,8 +347,6 @@ int FactoryDef(struct mg_connection *conn, void *cbdata)
 	          "Connection: close\r\n\r\n");
 
 	Settings_SetDefault();
-
-	//TODO restore factory settings (JSON file)
 	return 1;
 }
 

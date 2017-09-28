@@ -15,6 +15,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <termios.h>
+#include <stdbool.h>
+#include <errno.h>
 
 #define RX_BUFF_SIZE				64
 #define MAX_SPLITED_COUNT			16
@@ -23,6 +25,11 @@
 static char rxBuffer[RX_BUFF_SIZE] 	= {0};
 static unsigned int rxBuffIndex 	= 0;
 static int uart_stream 				= -1;
+
+void * uartRxThread(void * param);
+void * uartTxThread(void * param);
+
+
 
 //----- SETUP USART 0 -----
 //-------------------------
@@ -75,6 +82,8 @@ void Uart_Init(void)
 #ifdef DEBUG_UART_RX
 		printf("Uart_Init[Success]: Opened port COM successfully\n\r");
 #endif
+		errno = pthread_create(&uartTxThreadHandler, NULL, uartTxThread, NULL);
+		errno = pthread_create(&uartRxThreadHandler, NULL, uartRxThread, NULL);
 	}
 }
 
@@ -232,4 +241,29 @@ void Uart_RxHandler(void)
 			}
 		}
 	}
+}
+
+void * uartRxThread(void * param)
+{
+	(void)param;
+	while (true)
+	{
+		Uart_RxHandler();
+	}
+
+	pthread_exit(NULL);
+}
+
+void * uartTxThread(void * param)
+{
+	(void)param;
+	while (true)
+	{
+		sleep(2);
+#ifdef DEBUG_UART_TX
+		printf("UART TX THREAD\r\n");
+#endif
+	}
+
+	pthread_exit(NULL);
 }

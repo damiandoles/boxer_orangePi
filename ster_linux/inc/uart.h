@@ -8,6 +8,10 @@
 #ifndef INC_UART_H_
 #define INC_UART_H_
 
+#include <pthread.h>
+
+pthread_t uartRxThreadHandler, uartTxThreadHandler;
+
 void Uart_Init(void);
 void Uart_RxHandler(void);
 

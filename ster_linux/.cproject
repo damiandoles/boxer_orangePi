@@ -3,7 +3,11 @@
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="cdt.managedbuild.config.gnu.exe.debug.266057338">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.exe.debug.266057338" moduleId="org.eclipse.cdt.core.settings" name="Debug">
-				<externalSettings/>
+				<externalSettings>
+					<externalSetting>
+						<entry flags="RESOLVED" kind="macro" name="NO_SSL" value=""/>
+					</externalSetting>
+				</externalSettings>
 				<extensions>
 					<extension id="org.eclipse.cdt.core.GNU_ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
@@ -38,7 +42,6 @@
 									<listOptionValue builtIn="false" value="USE_STACK_SIZE=102400"/>
 									<listOptionValue builtIn="false" value="DEBUG"/>
 									<listOptionValue builtIn="false" value="LINUX"/>
-									<listOptionValue builtIn="false" value="NO_SSL"/>
 								</option>
 								<option id="gnu.c.compiler.option.warnings.extrawarn.348556647" name="Extra warnings (-Wextra)" superClass="gnu.c.compiler.option.warnings.extrawarn" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="gnu.c.compiler.option.pthread.1402487720" name="Support for pthread (-pthread)" superClass="gnu.c.compiler.option.pthread" useByScannerDiscovery="false" value="true" valueType="boolean"/>
@@ -110,10 +113,10 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/boxer_orangePI/settings}&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1041044470" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="ENABLE_STATIC_FILE=1"/>
 									<listOptionValue builtIn="false" value="LINUX"/>
 									<listOptionValue builtIn="false" value="NO_SSL"/>
 									<listOptionValue builtIn="false" value="USE_STACK_SIZE=102400"/>
+									<listOptionValue builtIn="false" value="USE_SSL_DH"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.411617824" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
