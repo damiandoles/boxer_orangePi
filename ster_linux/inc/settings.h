@@ -94,7 +94,12 @@ typedef struct DeviceSettings
 extern const dev_settings_t defaultSettings;
 dev_settings_t actualSettings;
 
-void GetDevSettings(dev_settings_t *settings);
-void SetDevSettings(dev_settings_t *settings);
+void Settings_GetActual(void);
+
+void Settings_SetLamp(void);
+void Settings_SetTempFan(void);
+void Settings_SetIrr(void);
+void Settings_SetNetwork(void);
+void Settings_SetDefault(void);
 
 #endif /* INC_SETTINGS_H_ */

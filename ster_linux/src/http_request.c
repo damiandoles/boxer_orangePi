@@ -196,6 +196,8 @@ int SaveLamp(struct mg_connection *conn, void *cbdata)
 		actualSettings.lightSettings.state 		= atoi(values[2]);
 		strcpy(actualSettings.lightSettings.turnOnOffTime, values[3]);
 
+		Settings_SetLamp();
+
 		mg_printf(conn, "HTTP/1.1 200 OK\r\n" \
 				"Connection: close\r\n" \
 				"Content-Type: application/x-www-form-urlencoded\r\n\r\n");
@@ -217,6 +219,8 @@ int SaveTempFan(struct mg_connection *conn, void *cbdata)
 		actualSettings.tempFanSettings.tempMax 	= strtod(values[1], NULL);
 		actualSettings.tempFanSettings.pushFan 	= atoi(values[2]);
 		actualSettings.tempFanSettings.pullFan 	= atoi(values[3]);
+
+		Settings_SetTempFan();
 
 		mg_printf(conn, "HTTP/1.1 200 OK\r\n" \
 				"Connection: close\r\n" \
@@ -274,6 +278,8 @@ int SaveIrr(struct mg_connection *conn, void *cbdata)
 		actualSettings.irrSettings.freq 		= atoi(values[2]);
 		strcpy(actualSettings.irrSettings.startTime, values[3]);
 
+		Settings_SetIrr();
+
 		mg_printf(conn, "HTTP/1.1 200 OK\r\n" \
 				"Connection: close\r\n" \
 				"Content-Type: application/x-www-form-urlencoded\r\n\r\n");
@@ -306,6 +312,8 @@ int SaveNetwork(struct mg_connection *conn, void *cbdata)
 			memset(actualSettings.networkSettings.gate, 0, IP_FORMAT_LEN);
 		}
 
+		Settings_SetNetwork();
+
 		mg_printf(conn, "HTTP/1.1 200 OK\r\n" \
 				"Connection: close\r\n" \
 				"Content-Type: application/x-www-form-urlencoded\r\n\r\n");
@@ -337,6 +345,8 @@ int FactoryDef(struct mg_connection *conn, void *cbdata)
 	          "HTTP/1.1 200 OK\r\n"
 	          "Content-Type: text/plain; charset=UTF-8\r\n"
 	          "Connection: close\r\n\r\n");
+
+	Settings_SetDefault();
 
 	//TODO restore factory settings (JSON file)
 	return 1;

@@ -289,8 +289,7 @@ int main(void) //TODO MAIN !!!!
 //	Uart_Init();
 	DataBase_Init();
 	DataBase_TestInsert();
-	dev_settings_t tempSettings = {0};
-	GetDevSettings(&tempSettings);
+	Settings_GetActual();
 
 	errno = pthread_create(&uartTxThreadHandler, NULL, uartTxThread, NULL);
 	errno = pthread_create(&uartRxThreadHandler, NULL, uartRxThread, NULL);
