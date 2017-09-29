@@ -50,7 +50,6 @@ void DataBase_TestInsert(void)
 
 void DataBase_Init(void)
 {
-	pthread_mutex_lock(&uartDB_mutex);
 	sqlite3 * database;
 	char * zErrMsg = 0;
 	char * sqlStatement = (char*)calloc(MAX_STATEMENT_LEN, sizeof(char));
@@ -120,8 +119,6 @@ void DataBase_Init(void)
 	}
 
 	DataBase_TestInsert();
-
-	pthread_mutex_unlock(&uartDB_mutex);
 }
 
 void DataBase_InsertBasicMeas(basic_meas_t * meas)

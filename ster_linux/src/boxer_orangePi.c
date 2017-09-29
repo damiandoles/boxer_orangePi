@@ -15,7 +15,7 @@
 
 int main(void)
 {
-//	Uart_Init();
+	Uart_Init();
 	DataBase_Init();
 	Settings_GetActual();
 	ServerHttp_Init();
