@@ -88,18 +88,38 @@ int GetMeas(struct mg_connection *conn, void *cbdata)
 
 	DataBase_SelectMeasData(&m_basic, &m_ph);
 	char * respBody = (char*)calloc(MAX_RESP_BODY_LEN, sizeof(char));
-	snprintf(
-			respBody,
-			MAX_RESP_BODY_LEN,
-			"%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n",
-			m_basic.humidity,
-			m_basic.lux,
-			m_basic.temp_up,
-			m_basic.temp_middle,
-			m_basic.temp_down,
-			m_ph.ph_water,
-			m_ph.ph_soil,
-			m_basic.soil_moist);
+
+	size_t lenAll = strlen(m_basic.humidity) 	+
+					strlen(m_basic.lux) 		+
+					strlen(m_basic.temp_up) 	+
+					strlen(m_basic.temp_middle) +
+					strlen(m_basic.temp_down) 	+
+					strlen(m_ph.ph_water) 		+
+					strlen(m_ph.ph_soil) 		+
+					strlen(m_basic.soil_moist);
+
+	if (!lenAll)
+	{
+		snprintf(
+				respBody,
+				MAX_RESP_BODY_LEN,
+				"- - -\r\n- - -\r\n- - -\r\n- - -\r\n- - -\r\n- - -\r\n- - -\r\n- - -\r\n");
+	}
+	else
+	{
+		snprintf(
+				respBody,
+				MAX_RESP_BODY_LEN,
+				"%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n",
+				m_basic.humidity,
+				m_basic.lux,
+				m_basic.temp_up,
+				m_basic.temp_middle,
+				m_basic.temp_down,
+				m_ph.ph_water,
+				m_ph.ph_soil,
+				m_basic.soil_moist);
+	}
 
 	mg_printf(conn, "HTTP/1.1 200 OK\r\n" \
 			"Connection: close\r\n" \

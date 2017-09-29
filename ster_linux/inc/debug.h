@@ -10,7 +10,7 @@
 
 #ifdef DEBUG
 #define DEBUG_SQL_DATABASE
-#define DEBUG_DB_INSERT_STATEMENT
+//#define DEBUG_DB_INSERT_STATEMENT
 #define DEBUG_UART_RX
 #define DEBUG_UART_TX
 #endif
