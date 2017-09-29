@@ -103,7 +103,7 @@ void ServerHttp_Init(void)
 	    "document_root",
 	    DOCUMENT_ROOT,
 	    "listening_ports",
-	    PORT,
+	    SERVER_PORT,
 	    "request_timeout_ms",
 	    "10000",
 	    "error_log_file",
@@ -186,10 +186,7 @@ void ServerHttp_Init(void)
 	}
 
 	/* Wait until the server should be closed */
-	while (!exitNow)
-	{
-		sleep(1);
-	}
+	sleep(100);
 
 	mg_stop(ctx);
 	printf("Server stopped.\n");

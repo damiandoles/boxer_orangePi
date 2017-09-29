@@ -12,6 +12,12 @@
 #include <string.h>
 #include <stdint.h>
 
+#ifdef DEBUG
+#define SQL_DB_PATH			"Debug/boxer.db"
+#else
+#define SQL_DB_PATH			"sqldb/boxer.db"
+#endif
+
 #define MAX_STATEMENT_LEN	256
 
 static int SelectBasicMeas_Callback(void *NotUsed, int argc, char **argv, char **azColName);
@@ -49,7 +55,7 @@ void DataBase_Init(void)
 	char * zErrMsg = 0;
 	char * sqlStatement = (char*)calloc(MAX_STATEMENT_LEN, sizeof(char));
 
-	if (sqlite3_open("sqldb/boxer.db", &database) != SQLITE_OK)
+	if (sqlite3_open(SQL_DB_PATH, &database) != SQLITE_OK)
 	{
 #ifdef DEBUG_SQL_DATABASE
 		fprintf(stderr, "DataBase_Init[Error]: Can't open database: %s\n\r", sqlite3_errmsg(database));
@@ -113,6 +119,8 @@ void DataBase_Init(void)
 		free(sqlStatement);
 	}
 
+	DataBase_TestInsert();
+
 	pthread_mutex_unlock(&uartDB_mutex);
 }
 
@@ -123,7 +131,7 @@ void DataBase_InsertBasicMeas(basic_meas_t * meas)
 	char * zErrMsg = 0;
 	char * sqlStatement = (char*)calloc(MAX_STATEMENT_LEN, sizeof(char));
 
-	if (sqlite3_open("sqldb/boxer.db", &database) != SQLITE_OK)
+	if (sqlite3_open(SQL_DB_PATH, &database) != SQLITE_OK)
 	{
 #ifdef DEBUG_SQL_DATABASE
 		fprintf(stderr, "DataBase_InsertBasicMeas[Error]: Can't open database: %s\n\r", sqlite3_errmsg(database));
@@ -176,7 +184,7 @@ void DataBase_InsertPhMeas(ph_meas_t * meas)
 	char * zErrMsg = 0;
 	char * sqlStatement = (char*)calloc(MAX_STATEMENT_LEN, sizeof(char));
 
-	if (sqlite3_open("sqldb/boxer.db", &database) != SQLITE_OK)
+	if (sqlite3_open(SQL_DB_PATH, &database) != SQLITE_OK)
 	{
 #ifdef DEBUG_SQL_DATABASE
 		fprintf(stderr, "DataBase_InsertPhMeas[Error]: Can't open database: %s\n\r", sqlite3_errmsg(database));
@@ -243,7 +251,7 @@ void DataBase_SelectMeasData(basic_meas_t * basicMeas, ph_meas_t * phMeas)
 	char * zErrMsg = 0;
 	char * sqlStatement = (char*)calloc(MAX_STATEMENT_LEN, sizeof(char));
 
-	if (sqlite3_open("sqldb/boxer.db", &database) != SQLITE_OK)
+	if (sqlite3_open(SQL_DB_PATH, &database) != SQLITE_OK)
 	{
 #ifdef DEBUG_SQL_DATABASE
 		fprintf(stderr, "DataBase_SelectData[Error]: Can't open database: %s\n\r", sqlite3_errmsg(database));
@@ -304,7 +312,7 @@ void DataBase_SelectMeasData(basic_meas_t * basicMeas, ph_meas_t * phMeas)
 #endif
 // PH_WATER = NULL	PH_SOIL = 4.89	TIMELOCAL = 2017-09-07 22:09:34
 
-		strcpy(phMeas->ph_water,  sPhMeas[0]);
+		strcpy(phMeas->ph_water,sPhMeas[0]);
 		strcpy(phMeas->ph_soil, sPhMeas[1]);
 
 		sqlite3_close(database);

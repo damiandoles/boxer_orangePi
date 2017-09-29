@@ -17,7 +17,6 @@ int main(void)
 {
 //	Uart_Init();
 	DataBase_Init();
-	DataBase_TestInsert();
 	Settings_GetActual();
 	ServerHttp_Init();
 

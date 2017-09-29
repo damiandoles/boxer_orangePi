@@ -5,10 +5,6 @@
  *      Author: Damian Dolewski
  */
 
-#include "uart.h"
-#include "types.h"
-#include "database.h"
-#include "debug.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,6 +13,12 @@
 #include <termios.h>
 #include <stdbool.h>
 #include <errno.h>
+
+#include "uart.h"
+#include "types.h"
+#include "database.h"
+#include "debug.h"
+#include "defines.h"
 
 #define RX_BUFF_SIZE				64
 #define MAX_SPLITED_COUNT			16
@@ -59,7 +61,7 @@ void * uartTxThread(void * param);
 //	PARODD - Odd parity (else even)
 void Uart_Init(void)
 {
-	uart_stream = open("/dev/ttyACM0", O_RDWR | O_NOCTTY);		//Open in non blocking read/write mode
+	uart_stream = open(SERIAL_PORT_NAME, O_RDWR | O_NOCTTY);		//Open in non blocking read/write mode
 	if (uart_stream == -1)
 	{
 #ifdef DEBUG_UART_RX
