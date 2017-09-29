@@ -103,14 +103,14 @@ int GetMeas(struct mg_connection *conn, void *cbdata)
 		snprintf(
 				respBody,
 				MAX_RESP_BODY_LEN,
-				"- - -\r\n- - -\r\n- - -\r\n- - -\r\n- - -\r\n- - -\r\n- - -\r\n- - -\r\n");
+				"- - -\r\n- - -\r\n- - -\r\n- - -\r\n- - -\r\n- - -\r\n- - -\r\n- - -");
 	}
 	else
 	{
 		snprintf(
 				respBody,
 				MAX_RESP_BODY_LEN,
-				"%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n",
+				"%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n%s",
 				m_basic.humidity,
 				m_basic.lux,
 				m_basic.temp_up,

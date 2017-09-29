@@ -7,6 +7,7 @@
 
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "server_middleware.h"
 #include "http_request.h"
 #include "uart.h"
@@ -105,7 +106,7 @@ void ServerHttp_Init(void)
 	    "listening_ports",
 	    SERVER_PORT,
 	    "request_timeout_ms",
-	    "10000",
+	    "100000",
 	    "error_log_file",
 	    "error.log",
 #ifndef NO_SSL
@@ -186,7 +187,7 @@ void ServerHttp_Init(void)
 	}
 
 	/* Wait until the server should be closed */
-	sleep(100);
+	while (true){}
 
 	mg_stop(ctx);
 	printf("Server stopped.\n");
