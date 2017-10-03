@@ -64,10 +64,11 @@ int GetLamp(struct mg_connection *conn, void *cbdata)
 	snprintf(
 			respBody,
 			MAX_RESP_BODY_LEN,
-			"%d\r\n%d\r\n%d\r\n%s\r\n0\r\n0\r\n", //+ counters
+			"%d\r\n%d\r\n%d\r\n%d\r\n%s\r\n0\r\n0\r\n", //+ counters
 			actualSettings.lightSettings.timeOn,
 			actualSettings.lightSettings.timeOff,
-			actualSettings.lightSettings.state,
+			actualSettings.lightSettings.initState,
+			actualSettings.lightSettings.startMode,
 			actualSettings.lightSettings.turnOnOffTime);
 
 	mg_printf(conn, "HTTP/1.1 200 OK\r\n" \
@@ -209,12 +210,13 @@ int SaveLamp(struct mg_connection *conn, void *cbdata)
 	int len = mg_read(conn, contentBuff, sizeof(contentBuff)/sizeof(*(contentBuff)));
 	if (len > 0)
 	{
-		char ** values = Http_ExtractPostForm(contentBuff, 4);
+		char ** values = Http_ExtractPostForm(contentBuff, 5);
 
 		actualSettings.lightSettings.timeOn 	= atoi(values[0]);
 		actualSettings.lightSettings.timeOff 	= atoi(values[1]);
-		actualSettings.lightSettings.state 		= atoi(values[2]);
-		strcpy(actualSettings.lightSettings.turnOnOffTime, values[3]);
+		actualSettings.lightSettings.initState 	= atoi(values[2]);
+		actualSettings.lightSettings.startMode 	= atoi(values[3]);
+		strcpy(actualSettings.lightSettings.turnOnOffTime, values[4]);
 
 		Settings_SetLamp();
 

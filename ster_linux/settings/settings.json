@@ -3,6 +3,7 @@
         "time_on": 12,
         "time_off": 12,
         "initial_state": 0,
+        "start_mode": 0,
         "turn_on_off_time": "00:00"
     },
     "temp_fan_settings": {

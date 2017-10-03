@@ -25,6 +25,12 @@ typedef enum LightInitState
 	LIGHT_STATE_TURN_ON
 }light_state_t;
 
+typedef enum LightStartMode
+{
+	LIGHT_START_NOW,
+	LIGHT_START_AT_TIME
+}light_start_mode_t;
+
 typedef enum TempFanMode
 {
 	TEMP_FAN_MANUAL_MODE,
@@ -55,7 +61,8 @@ typedef struct LightSettings
 {
 	hours_num_t timeOn;
 	hours_num_t timeOff;
-	light_state_t state;
+	light_state_t initState;
+	light_start_mode_t startMode;
 	char * turnOnOffTime;
 }light_sett_t;
 

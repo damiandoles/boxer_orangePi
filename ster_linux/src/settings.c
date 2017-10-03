@@ -15,14 +15,15 @@
 static char * readJsonFile(const char * path);
 static void saveJsonFile(const char * path, const char * fileContent);
 
-static const char * defaultJsonContent = "{\n    \"lamp_settings\": {\n        \"time_on\": 12,\n        \"time_off\": 12,\n        \"initial_state\": 0,\n        \"turn_on_off_time\": \"00:00\"\n    },\n    \"temp_fan_settings\": {\n        \"mode\": 1,\n        \"pullfan\": 50,\n        \"pushfan\": 50,\n        \"temp_max\": 25.0\n    },\n    \"irrigation_settings\": {\n        \"mode\": 2,\n        \"water_amount\": 500,\n        \"freqency\": 3,\n        \"start_time\": \"22:00\" \n    },\n    \"network_settings\": {\n        \"dhcp_mode\": 1,\n        \"ipaddr\": \"---.---.---.---\",\n        \"mask\": \"---.---.---.---\",\n        \"gate\": \"---.---.---.---\"\n    }\n}\n";
+static const char * defaultJsonContent = "{\n    \"lamp_settings\": {\n        \"time_on\": 12,\n        \"time_off\": 12,\n        \"initial_state\": 0,\n        \"start_mode\": 0,\n        \"turn_on_off_time\": \"00:00\"\n    },\n    \"temp_fan_settings\": {\n        \"mode\": 1,\n        \"pullfan\": 50,\n        \"pushfan\": 50,\n        \"temp_max\": 25.0\n    },\n    \"irrigation_settings\": {\n        \"mode\": 2,\n        \"water_amount\": 500,\n        \"freqency\": 3,\n        \"start_time\": \"22:00\" \n    },\n    \"network_settings\": {\n        \"dhcp_mode\": 1,\n        \"ipaddr\": \"---.---.---.---\",\n        \"mask\": \"---.---.---.---\",\n        \"gate\": \"---.---.---.---\"\n    }\n}\n";
 
 const dev_settings_t defaultSettings =
 {
 	{
 		.timeOn 		= 12,
 		.timeOff 		= 12,
-		.state 			= LIGHT_STATE_TURN_OFF,
+		.initState 		= LIGHT_STATE_TURN_OFF,
+		.startMode		= LIGHT_START_NOW,
 		.turnOnOffTime 	= "06:00"
 	},
 	{
@@ -47,11 +48,11 @@ const dev_settings_t defaultSettings =
 
 void Settings_GetActual(void)
 {
-	actualSettings.irrSettings.startTime = (char*)calloc(SHORT_TIME_LEN, sizeof(char*));
-	actualSettings.lightSettings.turnOnOffTime = (char*)calloc(SHORT_TIME_LEN, sizeof(char*));
+	actualSettings.irrSettings.startTime 		= (char*)calloc(SHORT_TIME_LEN, sizeof(char*));
+	actualSettings.lightSettings.turnOnOffTime 	= (char*)calloc(SHORT_TIME_LEN, sizeof(char*));
 	actualSettings.networkSettings.staticIpAddr = (char*)calloc(IP_FORMAT_LEN,	sizeof(char*));
-	actualSettings.networkSettings.mask = (char*)calloc(IP_FORMAT_LEN,	sizeof(char*));
-	actualSettings.networkSettings.gate = (char*)calloc(IP_FORMAT_LEN,	sizeof(char*));
+	actualSettings.networkSettings.mask 		= (char*)calloc(IP_FORMAT_LEN,	sizeof(char*));
+	actualSettings.networkSettings.gate 		= (char*)calloc(IP_FORMAT_LEN,	sizeof(char*));
 
 	char * jsonStr = readJsonFile(JSON_SETTINGS_PATH);
 	cJSON * root = cJSON_Parse(jsonStr);
@@ -61,11 +62,13 @@ void Settings_GetActual(void)
 	cJSON * time_on 		 = cJSON_GetObjectItemCaseSensitive(lamp_settings, "time_on");
 	cJSON * time_off 		 = cJSON_GetObjectItemCaseSensitive(lamp_settings, "time_off");
 	cJSON * initial_state 	 = cJSON_GetObjectItemCaseSensitive(lamp_settings, "initial_state");
+	cJSON * start_mode 	 	 = cJSON_GetObjectItemCaseSensitive(lamp_settings, "start_mode");
 	cJSON * turn_on_off_time = cJSON_GetObjectItemCaseSensitive(lamp_settings, "turn_on_off_time");
 
-	actualSettings.lightSettings.state 	 = (light_state_t)initial_state->valueint;
-	actualSettings.lightSettings.timeOn  = (hours_num_t)time_on->valueint;
-	actualSettings.lightSettings.timeOff = (hours_num_t)time_off->valueint;
+	actualSettings.lightSettings.startMode 	= (light_start_mode_t)start_mode->valueint;
+	actualSettings.lightSettings.initState 	= (light_state_t)initial_state->valueint;
+	actualSettings.lightSettings.timeOn  	= (hours_num_t)time_on->valueint;
+	actualSettings.lightSettings.timeOff 	= (hours_num_t)time_off->valueint;
 	strcpy(actualSettings.lightSettings.turnOnOffTime, turn_on_off_time->valuestring);
 
 //	TEMP/FAN CONFIG
@@ -139,11 +142,13 @@ void Settings_SetLamp(void)
 	cJSON * time_on 		 = cJSON_GetObjectItemCaseSensitive(lamp_settings, "time_on");
 	cJSON * time_off 		 = cJSON_GetObjectItemCaseSensitive(lamp_settings, "time_off");
 	cJSON * initial_state 	 = cJSON_GetObjectItemCaseSensitive(lamp_settings, "initial_state");
+	cJSON * start_mode 	 	 = cJSON_GetObjectItemCaseSensitive(lamp_settings, "start_mode");
 	cJSON * turn_on_off_time = cJSON_GetObjectItemCaseSensitive(lamp_settings, "turn_on_off_time");
 
 	cJSON_SetNumberValue(time_on, 			actualSettings.lightSettings.timeOn);
 	cJSON_SetNumberValue(time_off, 			actualSettings.lightSettings.timeOff);
-	cJSON_SetNumberValue(initial_state, 	actualSettings.lightSettings.state);
+	cJSON_SetNumberValue(initial_state, 	actualSettings.lightSettings.initState);
+	cJSON_SetNumberValue(start_mode, 		actualSettings.lightSettings.startMode);
 	strcpy(turn_on_off_time->valuestring, 	actualSettings.lightSettings.turnOnOffTime);
 
 	char *newJsonContent = cJSON_Print(root);
